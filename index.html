@@ -22,11 +22,14 @@
                 <div class="bg-gradient-to-tr from-indigo-500 to-purple-500 h-8 w-8 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">Γ</div>
                 <span class="text-lg font-semibold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">Gamma<span class="text-indigo-400 font-normal">.clone</span></span>
             </div>
+            <div class="flex items-center space-x-2 text-xs font-medium text-slate-400 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-full">
+                <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>Motor Gemini Activo</span>
+            </div>
         </div>
     </header>
 
     <main class="max-w-5xl w-full mx-auto px-4 py-12 flex-grow">
-        
         <div class="text-center mb-12">
             <h1 class="text-4xl font-bold tracking-tight text-white sm:text-5xl bg-gradient-to-b from-white to-slate-300 bg-clip-text text-transparent">Genera presentaciones espectaculares</h1>
         </div>
@@ -61,7 +64,7 @@
                         <input type="checkbox" id="generateImages" class="w-5 h-5 accent-indigo-500 bg-slate-900 border-slate-700 rounded cursor-pointer">
                         <div>
                             <span class="text-sm font-semibold text-slate-300 group-hover:text-white transition-colors">Generar ilustraciones con IA</span>
-                            <p class="text-[10px] text-slate-500">Utiliza DALL-E 3 para crear imágenes únicas en cada slide.</p>
+                            <p class="text-[10px] text-slate-500">Imágenes gratuitas insertadas en cada slide.</p>
                         </div>
                     </label>
                 </div>
@@ -117,7 +120,7 @@
             const slideCount = document.getElementById("slideCount").value;
             if (!file) return alert("Sube un documento.");
 
-            showLoading("Estructurando modelo con IA...");
+            showLoading("Estructurando modelo con Gemini IA...");
             document.getElementById("step-setup").classList.add("opacity-50", "pointer-events-none");
 
             const reader = new FileReader();
@@ -157,7 +160,7 @@
             const templateId = document.getElementById("templateUrl").value;
             const generateImages = document.getElementById("generateImages").checked;
             
-            showLoading("Compilando Google Slides... (Si activaste imágenes, esto tomará un minuto adicional)");
+            showLoading("Compilando Google Slides... (Si activaste imágenes, esto tomará unos segundos adicionales)");
             const payload = { action: "FINALIZE", slides: currentSlidesData, templateId: templateId, generateImages: generateImages, fileName: currentFileName };
             
             try {
@@ -177,7 +180,7 @@
                     <span class="text-[10px] text-indigo-400 uppercase">Slide ${index + 1}</span>
                     <h3 class="text-sm font-semibold text-white my-2">${slide.titulo}</h3>
                     <p class="text-xs text-slate-400 whitespace-pre-line">${slide.contenido}</p>
-                    <p class="text-[9px] text-slate-600 mt-3 border-t border-slate-800 pt-2">🖼️ Sugerencia IA: ${slide.imagen_prompt}</p>
+                    <p class="text-[9px] text-slate-600 mt-3 border-t border-slate-800 pt-2">🖼️ Sugerencia visual: ${slide.imagen_prompt || 'Sin imagen'}</p>
                 </div>`;
             });
         }
