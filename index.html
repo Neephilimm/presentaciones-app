@@ -3,63 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Presentaciones IA</title>
+    <title>Gamma Clone - Generador IA</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; color: #333; background-color: #f9f9fb; }
+        h1 { color: #1e1e2f; text-align: center; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
         .form-group { margin-bottom: 20px; }
-        textarea, input[type="number"], input[type="file"] { width: 100%; margin-top: 5px; }
-        button { background-color: #007bff; color: white; padding: 10px 20px; border: none; cursor: pointer; }
-        button:hover { background-color: #0056b3; }
-        #status { margin-top: 20px; padding: 10px; border-radius: 5px; background-color: #f8f9fa; display: none; }
+        label { font-weight: 600; display: block; margin-bottom: 8px; color: #4a4a6a; }
+        textarea, input[type="number"], input[type="file"] { width: 100%; padding: 10px; border: 1px solid #cccedd; border-radius: 6px; box-sizing: border-box; font-size: 14px; }
+        button { background-color: #4f46e5; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; transition: background 0.2s; }
+        button:hover { background-color: #4338ca; }
+        button.secondary { background-color: #10b981; margin-top: 10px; }
+        button.secondary:hover { background-color: #059669; }
+        #status { margin-top: 20px; padding: 15px; border-radius: 6px; background-color: #eff6ff; color: #1e40af; display: none; font-weight: 500; text-align: center; }
+        
+        /* Estilos del Previsualizador de Slides */
+        .slide-preview-container { margin-top: 30px; display: block; }
+        .slide-card { background: #fff; border-left: 5px solid #4f46e5; padding: 15px; margin-bottom: 15px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.03); }
+        .slide-card h3 { margin-top: 0; color: #1e1e2f; border-bottom: 1px solid #f0f0f6; padding-bottom: 5px; }
+        .slide-card p { font-size: 14px; color: #555; white-space: pre-line; }
     </style>
 </head>
 <body>
 
-    <h1>Crea tu Presentación con IA</h1>
+    <h1>Generador Profesional de Presentaciones</h1>
     
-    <div class="form-group">
-        <label>Instrucciones previas (ej. "Hazlo con tono formal"):</label>
-        <textarea id="instructions" rows="4"></textarea>
+    <div id="step-setup" class="card">
+        <div class="form-group">
+            <label>Instrucciones iniciales para la IA:</label>
+            <textarea id="instructions" rows="3" placeholder="Ej: Haz una presentación académica, con tono formal y resalta las metodologías..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>Número de diapositivas deseadas:</label>
+            <input type="number" id="slideCount" value="6" min="1" max="20">
+        </div>
+        <div class="form-group">
+            <label>Sube tu documento (PDF, DOCX, PPTX, XLSX, CSV, TXT):</label>
+            <input type="file" id="fileInput" accept=".pdf,.docx,.pptx,.xlsx,.csv,.txt">
+        </div>
+        <button type="button" onclick="procesarDocumento()">Generar Modelo de Presentación</button>
     </div>
-
-    <div class="form-group">
-        <label>Número de slides:</label>
-        <input type="number" id="slideCount" value="5" min="1" max="20">
-    </div>
-
-    <div class="form-group">
-        <label>Sube tu archivo (PDF, Word, TXT):</label>
-        <input type="file" id="fileInput" accept=".pdf,.docx,.txt">
-    </div>
-
-    <button type="button" onclick="generarPresentacion()">Generar Presentación</button>
 
     <div id="status"></div>
 
-    <script>
-        // AQUÍ PEGARÁS LA URL QUE TE DE GOOGLE APPS SCRIPT
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbynInTrf1A_YLOlxWQfrIWk3m0wqcgX_QHn2HLZQ73bAyyIv_XFH6YS4k-rC6fLBiI/exec"; 
+    <div id="step-preview" class="card" style="display: none;">
+        <h2>Modelo de Presentación Propuesto</h2>
+        <p style="color: #666; font-size: 14px;">Así se estructurará tu presentación. Puedes solicitar cambios antes de crear el archivo final.</p>
+        
+        <div id="slides-container"></div>
 
-        async function generarPresentacion() {
-            const statusDiv = document.getElementById("status");
+        <div class="form-group" style="margin-top: 25px;">
+            <label>¿Quieres hacer modificaciones al modelo?</label>
+            <textarea id="modInstructions" rows="3" placeholder="Ej: Agrega más profundidad al slide 3 y cambia el título del slide 1..."></textarea>
+            <button type="button" class="secondary" onclick="modificarModelo()">Aplicar Modificaciones</button>
+        </div>
+        
+        <hr style="border: 0; border-top: 1px solid #e5e7eb; margin: 25px 0;">
+        <button type="button" style="background-color: #ff4757;" onclick="finalizarPresentacion()">¡Todo Listo! Crear Google Slides</button>
+    </div>
+
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbynInTrf1A_YLOlxWQfrIWk3m0wqcgX_QHn2HLZQ73bAyyIv_XFH6YS4k-rC6fLBiI/exec"; 
+        
+        let currentSlidesData = []; // Guardará el JSON actual de los slides
+        let globalExtractedText = ""; // Guardará el texto del archivo una vez extraído
+
+        // 1. Envía el archivo para extraer texto y generar el primer borrador JSON
+        async function procesarDocumento() {
             const file = document.getElementById("fileInput").files[0];
             const instructions = document.getElementById("instructions").value;
             const slideCount = document.getElementById("slideCount").value;
+            const statusDiv = document.getElementById("status");
 
-            if (!file) {
-                alert("Por favor, sube un documento primero.");
-                return;
-            }
+            if (!file) { return alert("Por favor, selecciona un documento."); }
 
             statusDiv.style.display = "block";
-            statusDiv.innerText = "Procesando documento y conectando con la IA... esto puede tardar un minuto.";
+            statusDiv.innerText = "Analizando archivo de datos y estructurando borrador con IA... (Puede tardar un momento)";
 
             const reader = new FileReader();
             reader.onload = async function(event) {
-                // Extraemos la parte base64 del archivo
                 const base64 = event.target.result.split(',')[1]; 
                 
                 const payload = {
+                    action: "CREATE_DRAFT",
                     fileName: file.name,
                     mimeType: file.type,
                     fileData: base64,
@@ -68,20 +94,94 @@
                 };
 
                 try {
-                    const response = await fetch(WEB_APP_URL, {
-                        method: 'POST',
-                        body: JSON.stringify(payload)
-                    });
+                    const response = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
+                    const result = await response.json();
                     
-                    const result = await response.text();
-                    statusDiv.innerHTML = `<strong>Resultado:</strong> <br> ${result}`;
+                    if(result.success) {
+                        currentSlidesData = result.slides;
+                        globalExtractedText = result.extractedText; // Guardamos el texto para futuras iteraciones
+                        renderSlides();
+                        document.getElementById("step-preview").style.display = "block";
+                        statusDiv.style.display = "none";
+                    } else {
+                        statusDiv.innerText = "Error: " + result.error;
+                    }
                 } catch (error) {
-                    statusDiv.innerText = "Ocurrió un error en la conexión: " + error;
+                    statusDiv.innerText = "Error de red: " + error;
                 }
             };
-            
-            // Leemos el archivo
             reader.readAsDataURL(file);
+        }
+
+        // 2. Envía el JSON actual junto con las nuevas instrucciones para refinar el borrador
+        async function modificarModelo() {
+            const modInstructions = document.getElementById("modInstructions").value;
+            const statusDiv = document.getElementById("status");
+            
+            if(!modInstructions.trim()) return alert("Escribe qué modificaciones deseas realizar.");
+
+            statusDiv.style.display = "block";
+            statusDiv.innerText = "Rediseñando el borrador según tus indicaciones...";
+
+            const payload = {
+                action: "MODIFY_DRAFT",
+                currentSlides: currentSlidesData,
+                modInstructions: modInstructions,
+                extractedText: globalExtractedText
+            };
+
+            try {
+                const response = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const result = await response.json();
+                
+                if(result.success) {
+                    currentSlidesData = result.slides;
+                    renderSlides();
+                    document.getElementById("modInstructions").value = ""; // Limpiar caja
+                    statusDiv.style.display = "none";
+                } else {
+                    statusDiv.innerText = "Error al modificar: " + result.error;
+                }
+            } catch (error) {
+                statusDiv.innerText = "Error de conexión: " + error;
+            }
+        }
+
+        // 3. Ordena al backend construir el archivo final de Google Slides utilizando el JSON aprobado
+        async function finalizarPresentacion() {
+            const statusDiv = document.getElementById("status");
+            statusDiv.style.display = "block";
+            statusDiv.innerText = "Compilando diseño final y escribiendo tu archivo de Google Slides...";
+
+            const payload = {
+                action: "FINALIZE",
+                slides: currentSlidesData
+            };
+
+            try {
+                const response = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const result = await response.json();
+                
+                if(result.success) {
+                    statusDiv.innerHTML = `🎉 <strong>¡Presentación creada con éxito!</strong><br><br><a href="${result.url}" target="_blank" style="color:#4f46e5; font-weight:bold; text-decoration:underline;">👉 Haz clic aquí para abrir tu presentación en Google Slides</a>`;
+                } else {
+                    statusDiv.innerText = "Error al compilar presentación: " + result.error;
+                }
+            } catch (error) {
+                statusDiv.innerText = "Error de conexión final: " + error;
+            }
+        }
+
+        // Pinta el JSON en la interfaz web de forma elegante
+        function renderSlides() {
+            const container = document.getElementById("slides-container");
+            container.innerHTML = "";
+            currentSlidesData.forEach((slide, index) => {
+                const div = document.createElement("div");
+                div.className = "slide-card";
+                div.innerHTML = `<h3>Diapositiva ${index + 1}: ${slide.titulo}</h3><p>${slide.contenido}</p>`;
+                container.appendChild(div);
+            });
         }
     </script>
 </body>
