@@ -3,68 +3,137 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Generador de Presentaciones Pro</title>
+  <title>GammaPro - Creador de Slides</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root { --primary: #2563EB; --bg: #F3F4F6; --card: #FFFFFF; --text: #1F2937; --border: #E5E7EB; }
+    :root { --primary: #2563EB; --primary-hover: #1D4ED8; --bg: #F3F4F6; --card: #FFFFFF; --text: #1F2937; --border: #E5E7EB; }
     body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); padding: 40px 20px; display: flex; justify-content: center; }
-    .container { background: var(--card); max-width: 600px; width: 100%; border-radius: 12px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-    h2 { text-align: center; color: var(--primary); margin-bottom: 20px; }
+    .container { background: var(--card); max-width: 650px; width: 100%; border-radius: 12px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+    .header { text-align: center; margin-bottom: 25px; }
+    .header h1 { font-size: 26px; color: var(--primary); margin: 0;}
+    .header p { color: #6B7280; font-size: 14px; margin-top: 5px;}
+    
+    .section-title { font-size: 16px; font-weight: 600; margin-bottom: 15px; border-bottom: 2px solid var(--bg); padding-bottom: 8px; display: flex; justify-content: space-between;}
     .form-group { margin-bottom: 20px; }
     label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
-    .file-drop { border: 2px dashed var(--border); border-radius: 8px; padding: 15px; text-align: center; background: #FAFAFA; }
+    
+    select, input[type="text"] { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; margin-bottom: 10px; background: #F9FAFB;}
+    .save-template-box { background: #EFF6FF; border: 1px dashed #93C5FD; padding: 15px; border-radius: 8px; margin-top: 10px; }
+    .save-btn { background: #3B82F6; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 10px;}
+    .clear-btn { background: none; border: none; color: #EF4444; font-size: 12px; cursor: pointer; text-decoration: underline; }
+
+    .file-drop { border: 2px dashed var(--border); border-radius: 8px; padding: 15px; text-align: center; background: #FAFAFA; margin-bottom: 10px; }
     input[type="file"] { width: 100%; font-size: 13px; }
-    select, input[type="number"] { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; margin-top: 5px; }
-    .btn { background: var(--primary); color: white; width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; }
-    .btn:disabled { background: #9CA3AF; }
-    #status { margin-top: 20px; text-align: center; font-weight: 500; padding: 15px; border-radius: 8px; background: #EFF6FF; color: #1E3A8A; display: none; }
-    .export-links { display: flex; gap: 10px; margin-top: 15px; }
-    .export-links a { flex: 1; text-align: center; padding: 10px; border-radius: 6px; text-decoration: none; font-weight: bold; color: white; }
-    .btn-edit { background: #10B981; }
-    .btn-pdf { background: #EF4444; }
-    .btn-pptx { background: #F59E0B; }
+    
+    .btn-main { background: var(--primary); color: white; width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; }
+    .btn-main:disabled { background: #9CA3AF; }
+    
+    #status { margin-top: 20px; text-align: center; font-weight: 500; padding: 15px; border-radius: 8px; background: #FEF3C7; color: #92400E; display: none;}
+    
+    .export-links { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;}
+    .export-links a { flex: 1; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; color: white; min-width: 140px;}
+    .btn-edit { background: #10B981; } .btn-pdf { background: #EF4444; } .btn-pptx { background: #F59E0B; }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>🧠 Creador de Presentaciones Editables</h2>
+  <div class="header">
+    <h1>🧠 Creador de Presentaciones Editables</h1>
+    <p>Conecta con Google Slides, Ideogram y tu Catálogo</p>
+  </div>
   
   <div class="form-group">
-    <label>Diseño Base:</label>
-    <select id="themeSelect">
-      <option value="GAMMA_LIGHT">Estilo Gamma (Crema y Tarjetas Blancas)</option>
-      <option value="CORP_BLUE">Corporativo (Blanco y Azul)</option>
+    <div class="section-title">1. Catálogo de Plantillas <button class="clear-btn" onclick="limpiarPlantillas()" id="btnClear" style="display:none;">Borrar guardadas</button></div>
+    <select id="templateSelect" onchange="toggleCustomTemplate()">
+      <option value="GAMMA_LIGHT">🎨 Auto-Diseño Gamma (Crema y Tarjetas Blancas)</option>
+      <option value="CORP_BLUE">🏢 Auto-Diseño Corporativo (Blanco y Azul)</option>
+      <option value="CUSTOM">🔗 Cargar nueva plantilla desde Google Slides...</option>
     </select>
+
+    <div id="customTemplateBox" class="save-template-box" style="display:none;">
+      <label>ID o Enlace de tu Google Slides:</label>
+      <input type="text" id="templateId" placeholder="Ej: 1A2b3C4d5E6f7G8h9I0j...">
+      <button class="save-btn" onclick="guardarPlantillaLocal()">💾 Guardar en mi catálogo</button>
+    </div>
   </div>
 
   <div class="form-group">
-    <label>Documentos (El Contenido es obligatorio):</label>
-    <div class="file-drop"><input type="file" id="fileInstrucciones" accept=".pdf,.docx,.txt"> Instrucciones</div>
-    <div class="file-drop" style="margin-top: 10px;"><input type="file" id="fileRubrica" accept=".pdf,.docx,.txt"> Rúbrica</div>
-    <div class="file-drop" style="margin-top: 10px; border-color: var(--primary);"><input type="file" id="fileContenido" accept=".pdf,.docx,.txt"> Contenido Base</div>
+    <div class="section-title">2. Documentos Fuente</div>
+    <div class="file-drop"><label>Instrucciones</label><input type="file" id="fileInstrucciones" accept=".pdf,.docx,.txt"></div>
+    <div class="file-drop"><label>Rúbrica</label><input type="file" id="fileRubrica" accept=".pdf,.docx,.txt"></div>
+    <div class="file-drop" style="border-color: var(--primary); background: #EFF6FF;"><label>Contenido Base *Requerido</label><input type="file" id="fileContenido" accept=".pdf,.docx,.txt"></div>
   </div>
 
-  <button class="btn" id="btnGenerar" onclick="generar()">Crear Presentación Editable</button>
+  <button class="btn-main" id="btnGenerar" onclick="generar()">Construir Presentación Editable</button>
   
   <div id="status"></div>
   <div id="export-links" class="export-links" style="display:none;">
     <a href="#" id="linkEdit" class="btn-edit" target="_blank">✏️ Editar (Slides)</a>
-    <a href="#" id="linkPdf" class="btn-pdf">📥 Bajar PDF</a>
-    <a href="#" id="linkPptx" class="btn-pptx">📥 Bajar PPTX</a>
+    <a href="#" id="linkPdf" class="btn-pdf" target="_blank">📥 Bajar PDF</a>
+    <a href="#" id="linkPptx" class="btn-pptx" target="_blank">📥 Bajar PPTX</a>
   </div>
 </div>
 
 <script>
-  // PON TU URL AQUÍ
+  // ¡PON TU URL AQUÍ!
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbynInTrf1A_YLOlxWQfrIWk3m0wqcgX_QHn2HLZQ73bAyyIv_XFH6YS4k-rC6fLBiI/exec";
+
+  // --- MEMORIA LOCALSTORAGE ---
+  window.onload = () => cargarPlantillasGuardadas();
+
+  function cargarPlantillasGuardadas() {
+    const select = document.getElementById('templateSelect');
+    const btnClear = document.getElementById('btnClear');
+    document.querySelectorAll('.saved-template-option').forEach(opt => opt.remove());
+    let savedTemplates = JSON.parse(localStorage.getItem('gammaProTemplates') || '[]');
+    
+    if (savedTemplates.length > 0) {
+      btnClear.style.display = 'inline-block';
+      savedTemplates.forEach(tpl => {
+        let opt = document.createElement('option');
+        opt.value = "SAVED_" + tpl.id; opt.className = "saved-template-option"; opt.text = "⭐ " + tpl.name;
+        select.insertBefore(opt, select.querySelector('option[value="CUSTOM"]'));
+      });
+    } else {
+      btnClear.style.display = 'none';
+    }
+  }
+
+  function guardarPlantillaLocal() {
+    let inputUrl = document.getElementById('templateId').value;
+    let match = inputUrl.match(/[-\w]{25,}/);
+    let finalId = match ? match[0] : inputUrl.trim();
+    if (!finalId) return alert("Ingresa un ID válido.");
+    let nombre = prompt("Nombre de la plantilla:");
+    if (!nombre) return;
+    let savedTemplates = JSON.parse(localStorage.getItem('gammaProTemplates') || '[]');
+    if (savedTemplates.some(tpl => tpl.id === finalId)) return alert("Ya está guardada.");
+    savedTemplates.push({ name: nombre, id: finalId });
+    localStorage.setItem('gammaProTemplates', JSON.stringify(savedTemplates));
+    cargarPlantillasGuardadas();
+    document.getElementById('templateSelect').value = "SAVED_" + finalId;
+    toggleCustomTemplate();
+  }
+
+  function limpiarPlantillas() {
+    if(confirm("¿Borrar tus plantillas guardadas?")) {
+      localStorage.removeItem('gammaProTemplates');
+      cargarPlantillasGuardadas();
+      document.getElementById('templateSelect').value = "GAMMA_LIGHT";
+      toggleCustomTemplate();
+    }
+  }
+
+  function toggleCustomTemplate() {
+    document.getElementById('customTemplateBox').style.display = document.getElementById('templateSelect').value === "CUSTOM" ? 'block' : 'none';
+  }
 
   const getBase64 = (file) => new Promise((resolve, reject) => {
     if (!file) return resolve(null);
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
+    const reader = new FileReader(); reader.readAsDataURL(file);
     reader.onload = () => resolve({ data: reader.result.split(',')[1], mime: file.type });
-    reader.onerror = error => reject(error);
+    reader.onerror = e => reject(e);
   });
 
   async function generar() {
@@ -73,12 +142,10 @@
     const links = document.getElementById('export-links');
     const fileContenido = document.getElementById('fileContenido').files[0];
     
-    if (!fileContenido) return alert("Sube el archivo de contenido.");
+    if (!fileContenido) return alert("El archivo de Contenido es obligatorio.");
 
-    btn.disabled = true;
-    links.style.display = 'none';
-    status.style.display = 'block';
-    status.innerText = "Dibujando diapositivas editables... ⏳ (Aprox 40 seg)";
+    btn.disabled = true; links.style.display = 'none'; status.style.display = 'block';
+    status.innerText = "Dibujando diapositivas en Google Slides y llamando a Ideogram... ⏳ (Aprox 45 seg)";
 
     try {
       const [inst, rub, cont] = await Promise.all([
@@ -87,28 +154,28 @@
         getBase64(fileContenido)
       ]);
 
+      let templateVal = document.getElementById('templateSelect').value;
+      let finalThemeCode = (templateVal === "CUSTOM" || templateVal.startsWith("SAVED_")) ? "CUSTOM" : templateVal;
+      let finalTemplateId = templateVal === "CUSTOM" ? document.getElementById('templateId').value : (templateVal.startsWith("SAVED_") ? templateVal.replace("SAVED_", "") : "");
+
       const payload = {
-        action: "CREATE_SLIDES",
-        themeCode: document.getElementById('themeSelect').value,
+        action: "CREATE_SLIDES", themeCode: finalThemeCode, templateId: finalTemplateId,
         instruccionesFile: inst ? inst.data : "", instruccionesMime: inst ? inst.mime : "",
         rubricaFile: rub ? rub.data : "", rubricaMime: rub ? rub.mime : "",
         contenidoFile: cont ? cont.data : "", contenidoMime: cont ? cont.mime : ""
       };
 
-      const response = await fetch(SCRIPT_URL, {
-        method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload)
-      });
+      const response = await fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload), redirect: "follow" });
       const result = await response.json();
       
-      if (result.success) {
-        status.innerText = "¡Presentación creada con éxito!";
-        links.style.display = 'flex';
+      if (result.success && result.id) {
+        status.style.display = 'none'; links.style.display = 'flex';
         document.getElementById('linkEdit').href = `https://docs.google.com/presentation/d/${result.id}/edit`;
         document.getElementById('linkPdf').href = `https://docs.google.com/presentation/d/${result.id}/export/pdf`;
         document.getElementById('linkPptx').href = `https://docs.google.com/presentation/d/${result.id}/export/pptx`;
       } else throw new Error(result.error);
-    } catch (e) {
-      status.innerText = "Error: " + e.message;
+    } catch (error) {
+      status.innerText = "Error: " + error.message;
     } finally {
       btn.disabled = false;
     }
