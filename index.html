@@ -3,149 +3,176 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GammaPro - Creador de Slides</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root { --primary: #2563EB; --primary-hover: #1D4ED8; --bg: #F3F4F6; --card: #FFFFFF; --text: #1F2937; --border: #E5E7EB; }
-    body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); padding: 40px 20px; display: flex; justify-content: center; }
-    .container { background: var(--card); max-width: 650px; width: 100%; border-radius: 12px; padding: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-    .header { text-align: center; margin-bottom: 25px; }
-    .header h1 { font-size: 26px; color: var(--primary); margin: 0;}
-    .header p { color: #6B7280; font-size: 14px; margin-top: 5px;}
-    
-    .section-title { font-size: 16px; font-weight: 600; margin-bottom: 15px; border-bottom: 2px solid var(--bg); padding-bottom: 8px; display: flex; justify-content: space-between;}
-    .form-group { margin-bottom: 20px; }
-    label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
-    
-    select, input[type="text"] { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; margin-bottom: 10px; background: #F9FAFB;}
-    .save-template-box { background: #EFF6FF; border: 1px dashed #93C5FD; padding: 15px; border-radius: 8px; margin-top: 10px; }
-    .save-btn { background: #3B82F6; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 10px;}
-    .clear-btn { background: none; border: none; color: #EF4444; font-size: 12px; cursor: pointer; text-decoration: underline; }
+  <title>GammaPro Premium Engine</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Georgia:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-    .file-drop { border: 2px dashed var(--border); border-radius: 8px; padding: 15px; text-align: center; background: #FAFAFA; margin-bottom: 10px; }
+  <style>
+    :root { 
+      --bg-color: #FDFBF7; 
+      --text-main: #2D251E; 
+      --text-muted: #6E6156; 
+      --accent: #A95A38; 
+      --accent-alt: #1E3A8A;
+      --card-bg: #FFFFFF;
+      --border-color: #E3DEC3;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background-color: #f0f0f0; color: var(--text-main); }
+
+    /* =========================================
+       PANTALLA DE CONFIGURACIÓN
+       ========================================= */
+    #setup-screen { display: flex; justify-content: center; padding: 40px 20px; min-height: 100vh; }
+    .setup-container { background: white; max-width: 650px; width: 100%; border-radius: 12px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    .header { text-align: center; margin-bottom: 30px; }
+    .header h1 { font-family: 'Georgia', serif; font-size: 28px; color: var(--accent-alt); }
+    
+    .file-drop { border: 2px dashed #ccc; border-radius: 8px; padding: 15px; text-align: center; background: #fafafa; margin-bottom: 15px; cursor: pointer; }
+    .file-drop label { font-weight: 600; display: block; margin-bottom: 5px; color: #333;}
     input[type="file"] { width: 100%; font-size: 13px; }
     
-    .btn-main { background: var(--primary); color: white; width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; }
-    .btn-main:disabled { background: #9CA3AF; }
+    .generate-btn { background: var(--accent-alt); color: white; width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: 0.3s;}
+    .generate-btn:hover { background: #172d69; }
+    .generate-btn:disabled { background: #94A3B8; cursor: not-allowed; }
     
-    #status { margin-top: 20px; text-align: center; font-weight: 500; padding: 15px; border-radius: 8px; background: #FEF3C7; color: #92400E; display: none;}
+    #status { margin-top: 20px; text-align: center; font-weight: 500; font-size: 14px; padding: 15px; border-radius: 8px; background: #FEF3C7; color: #92400E; display: none;}
+
+    /* =========================================
+       VISOR DE PRESENTACIÓN (ESTILO A4)
+       ========================================= */
+    #presentation-screen { display: none; padding: 40px 0; background: #e0e0e0; display: flex; flex-direction: column; align-items: center; gap: 20px;}
     
-    .export-links { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;}
-    .export-links a { flex: 1; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; color: white; min-width: 140px;}
-    .btn-edit { background: #10B981; } .btn-pdf { background: #EF4444; } .btn-pptx { background: #F59E0B; }
+    /* Configuración exacta de la hoja A4 Horizontal */
+    .web-slide { 
+      width: 297mm; 
+      height: 210mm; 
+      background: var(--bg-color);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      padding: 15mm 20mm;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Título de la Diapositiva */
+    .slide-title { 
+      font-family: 'Georgia', serif; 
+      font-size: 26pt; 
+      color: var(--text-main); 
+      border-bottom: 3px solid var(--accent); 
+      padding-bottom: 10px; 
+      margin-bottom: 12mm;
+    }
+
+    /* Diseño de Columnas */
+    .slide-layout { display: flex; gap: 15mm; height: 140mm; }
+    
+    .blocks-column { flex: 0 0 55%; display: flex; flex-direction: column; gap: 6mm; justify-content: center;}
+    .image-column { flex: 0 0 40%; display: flex; align-items: center; justify-content: center; }
+
+    /* Tarjetas Modulares Gamma */
+    .gamma-card {
+      background: var(--card-bg);
+      border-left: 5px solid var(--accent);
+      border-radius: 6px;
+      padding: 6mm 8mm;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    
+    .card-subtitle { 
+      font-family: 'Georgia', serif;
+      font-size: 14pt; 
+      color: var(--accent); 
+      margin-bottom: 2mm; 
+    }
+    
+    .card-text { 
+      font-size: 11pt; 
+      line-height: 1.6; 
+      color: var(--text-muted); 
+      text-align: justify;
+    }
+
+    /* Imagen de Ideogram */
+    .image-wrapper {
+      width: 100%;
+      height: 100%;
+      background: white;
+      border: 1px dashed var(--border-color);
+      border-radius: 12px;
+      padding: 4mm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .image-wrapper img { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: cover; 
+      border-radius: 8px;
+    }
+
+    /* Barra de Navegación */
+    .nav-bar { position: fixed; bottom: 30px; background: white; padding: 15px 30px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); display: flex; gap: 20px; z-index: 100;}
+    .nav-btn { background: none; border: none; font-size: 16px; cursor: pointer; font-weight: 600; color: #333;}
+    .btn-pdf { color: #DC2626; }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="header">
-    <h1>🧠 Creador de Presentaciones Editables</h1>
-    <p>Conecta con Google Slides, Ideogram y tu Catálogo</p>
-  </div>
-  
-  <div class="form-group">
-    <div class="section-title">1. Catálogo de Plantillas <button class="clear-btn" onclick="limpiarPlantillas()" id="btnClear" style="display:none;">Borrar guardadas</button></div>
-    <select id="templateSelect" onchange="toggleCustomTemplate()">
-      <option value="GAMMA_LIGHT">🎨 Auto-Diseño Gamma (Crema y Tarjetas Blancas)</option>
-      <option value="CORP_BLUE">🏢 Auto-Diseño Corporativo (Blanco y Azul)</option>
-      <option value="CUSTOM">🔗 Cargar nueva plantilla desde Google Slides...</option>
-    </select>
-
-    <div id="customTemplateBox" class="save-template-box" style="display:none;">
-      <label>ID o Enlace de tu Google Slides:</label>
-      <input type="text" id="templateId" placeholder="Ej: 1A2b3C4d5E6f7G8h9I0j...">
-      <button class="save-btn" onclick="guardarPlantillaLocal()">💾 Guardar en mi catálogo</button>
+<div id="setup-screen">
+  <div class="setup-container">
+    <div class="header">
+      <h1>📚 GammaPro Premium Engine</h1>
+      <p>Exportación a PDF A4 HD + Ideogram Images</p>
     </div>
-  </div>
 
-  <div class="form-group">
-    <div class="section-title">2. Documentos Fuente</div>
-    <div class="file-drop"><label>Instrucciones</label><input type="file" id="fileInstrucciones" accept=".pdf,.docx,.txt"></div>
-    <div class="file-drop"><label>Rúbrica</label><input type="file" id="fileRubrica" accept=".pdf,.docx,.txt"></div>
-    <div class="file-drop" style="border-color: var(--primary); background: #EFF6FF;"><label>Contenido Base *Requerido</label><input type="file" id="fileContenido" accept=".pdf,.docx,.txt"></div>
-  </div>
+    <div class="file-drop"><label>1. Instrucciones (Para la Portada)</label><input type="file" id="fileInstrucciones" accept=".pdf,.docx,.txt"></div>
+    <div class="file-drop"><label>2. Rúbrica (Para cumplir reglas)</label><input type="file" id="fileRubrica" accept=".pdf,.docx,.txt"></div>
+    <div class="file-drop" style="border-color: #1E3A8A; background: #EFF6FF;"><label>3. Contenido Base (Materia a exponer)</label><input type="file" id="fileContenido" accept=".pdf,.docx,.txt"></div>
 
-  <button class="btn-main" id="btnGenerar" onclick="generar()">Construir Presentación Editable</button>
+    <button id="btnGenerar" class="generate-btn" onclick="generar()">Construir Documento PDF</button>
+    <div id="status"></div>
+  </div>
+</div>
+
+<div id="presentation-screen" style="display: none;">
+  <div id="slides-container"></div>
   
-  <div id="status"></div>
-  <div id="export-links" class="export-links" style="display:none;">
-    <a href="#" id="linkEdit" class="btn-edit" target="_blank">✏️ Editar (Slides)</a>
-    <a href="#" id="linkPdf" class="btn-pdf" target="_blank">📥 Bajar PDF</a>
-    <a href="#" id="linkPptx" class="btn-pptx" target="_blank">📥 Bajar PPTX</a>
+  <div class="nav-bar">
+    <button class="nav-btn btn-pdf" id="btnDescargar" onclick="descargarPDFPremium()"><i class="fas fa-file-pdf"></i> Guardar como PDF</button>
+    <span style="color: #ccc;">|</span>
+    <button class="nav-btn" onclick="location.reload()">Nuevo Archivo</button>
   </div>
 </div>
 
 <script>
-  // ¡PON TU URL AQUÍ!
+  // ¡PON TU URL DE APPS SCRIPT AQUÍ!
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbynInTrf1A_YLOlxWQfrIWk3m0wqcgX_QHn2HLZQ73bAyyIv_XFH6YS4k-rC6fLBiI/exec";
-
-  // --- MEMORIA LOCALSTORAGE ---
-  window.onload = () => cargarPlantillasGuardadas();
-
-  function cargarPlantillasGuardadas() {
-    const select = document.getElementById('templateSelect');
-    const btnClear = document.getElementById('btnClear');
-    document.querySelectorAll('.saved-template-option').forEach(opt => opt.remove());
-    let savedTemplates = JSON.parse(localStorage.getItem('gammaProTemplates') || '[]');
-    
-    if (savedTemplates.length > 0) {
-      btnClear.style.display = 'inline-block';
-      savedTemplates.forEach(tpl => {
-        let opt = document.createElement('option');
-        opt.value = "SAVED_" + tpl.id; opt.className = "saved-template-option"; opt.text = "⭐ " + tpl.name;
-        select.insertBefore(opt, select.querySelector('option[value="CUSTOM"]'));
-      });
-    } else {
-      btnClear.style.display = 'none';
-    }
-  }
-
-  function guardarPlantillaLocal() {
-    let inputUrl = document.getElementById('templateId').value;
-    let match = inputUrl.match(/[-\w]{25,}/);
-    let finalId = match ? match[0] : inputUrl.trim();
-    if (!finalId) return alert("Ingresa un ID válido.");
-    let nombre = prompt("Nombre de la plantilla:");
-    if (!nombre) return;
-    let savedTemplates = JSON.parse(localStorage.getItem('gammaProTemplates') || '[]');
-    if (savedTemplates.some(tpl => tpl.id === finalId)) return alert("Ya está guardada.");
-    savedTemplates.push({ name: nombre, id: finalId });
-    localStorage.setItem('gammaProTemplates', JSON.stringify(savedTemplates));
-    cargarPlantillasGuardadas();
-    document.getElementById('templateSelect').value = "SAVED_" + finalId;
-    toggleCustomTemplate();
-  }
-
-  function limpiarPlantillas() {
-    if(confirm("¿Borrar tus plantillas guardadas?")) {
-      localStorage.removeItem('gammaProTemplates');
-      cargarPlantillasGuardadas();
-      document.getElementById('templateSelect').value = "GAMMA_LIGHT";
-      toggleCustomTemplate();
-    }
-  }
-
-  function toggleCustomTemplate() {
-    document.getElementById('customTemplateBox').style.display = document.getElementById('templateSelect').value === "CUSTOM" ? 'block' : 'none';
-  }
 
   const getBase64 = (file) => new Promise((resolve, reject) => {
     if (!file) return resolve(null);
-    const reader = new FileReader(); reader.readAsDataURL(file);
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
     reader.onload = () => resolve({ data: reader.result.split(',')[1], mime: file.type });
-    reader.onerror = e => reject(e);
+    reader.onerror = error => reject(error);
   });
 
   async function generar() {
     const btn = document.getElementById('btnGenerar');
     const status = document.getElementById('status');
-    const links = document.getElementById('export-links');
     const fileContenido = document.getElementById('fileContenido').files[0];
     
-    if (!fileContenido) return alert("El archivo de Contenido es obligatorio.");
+    if (!fileContenido) return alert("Sube el archivo de Contenido Base.");
 
-    btn.disabled = true; links.style.display = 'none'; status.style.display = 'block';
-    status.innerText = "Dibujando diapositivas en Google Slides y llamando a Ideogram... ⏳ (Aprox 45 seg)";
+    btn.disabled = true;
+    status.style.display = 'block';
+    status.innerText = "Llamando a LLaMA e Ideogram... ⏳ (Esto tarda un poco por las imágenes)";
 
     try {
       const [inst, rub, cont] = await Promise.all([
@@ -154,31 +181,132 @@
         getBase64(fileContenido)
       ]);
 
-      let templateVal = document.getElementById('templateSelect').value;
-      let finalThemeCode = (templateVal === "CUSTOM" || templateVal.startsWith("SAVED_")) ? "CUSTOM" : templateVal;
-      let finalTemplateId = templateVal === "CUSTOM" ? document.getElementById('templateId').value : (templateVal.startsWith("SAVED_") ? templateVal.replace("SAVED_", "") : "");
-
       const payload = {
-        action: "CREATE_SLIDES", themeCode: finalThemeCode, templateId: finalTemplateId,
+        action: "GENERATE_WEB_PRESENTATION",
+        autoSlides: true,
         instruccionesFile: inst ? inst.data : "", instruccionesMime: inst ? inst.mime : "",
         rubricaFile: rub ? rub.data : "", rubricaMime: rub ? rub.mime : "",
         contenidoFile: cont ? cont.data : "", contenidoMime: cont ? cont.mime : ""
       };
 
-      const response = await fetch(SCRIPT_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload), redirect: "follow" });
+      const response = await fetch(SCRIPT_URL, {
+        method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload), redirect: "follow"
+      });
+
       const result = await response.json();
       
-      if (result.success && result.id) {
-        status.style.display = 'none'; links.style.display = 'flex';
-        document.getElementById('linkEdit').href = `https://docs.google.com/presentation/d/${result.id}/edit`;
-        document.getElementById('linkPdf').href = `https://docs.google.com/presentation/d/${result.id}/export/pdf`;
-        document.getElementById('linkPptx').href = `https://docs.google.com/presentation/d/${result.id}/export/pptx`;
-      } else throw new Error(result.error);
+      if (result.success && result.slides) {
+        renderizarPremium(result.slides);
+      } else {
+        throw new Error(result.error);
+      }
     } catch (error) {
       status.innerText = "Error: " + error.message;
-    } finally {
       btn.disabled = false;
     }
+  }
+
+  function renderizarPremium(slides) {
+    document.getElementById('setup-screen').style.display = 'none';
+    const presScreen = document.getElementById('presentation-screen');
+    const container = document.getElementById('slides-container');
+    
+    // Forzamos estilo flex para que las hojas se centren en pantalla
+    presScreen.style.display = 'flex'; 
+
+    let htmlContent = "";
+
+    slides.forEach((slide, index) => {
+      // Alternar el diseño: Tarjetas izquierda, Imagen derecha (y viceversa)
+      let isReversed = index % 2 !== 0 ? "flex-direction: row-reverse;" : "";
+      
+      // Alternar color de acento
+      let accentColor = index % 2 === 0 ? "var(--accent)" : "var(--accent-alt)";
+
+      htmlContent += `
+        <div class="web-slide">
+          <h1 class="slide-title" style="border-bottom-color: ${accentColor}; color: #2D251E;">
+            ${index === 0 ? "" : "0" + (index) + " / "} ${slide.titulo}
+          </h1>
+          
+          <div class="slide-layout" style="${isReversed}">
+            <div class="blocks-column">
+      `;
+      
+      // Dibujar las tarjetas (Bloques)
+      if (slide.bloques && slide.bloques.length > 0) {
+        slide.bloques.forEach(bloque => {
+          htmlContent += `
+            <div class="gamma-card" style="border-left-color: ${accentColor};">
+              <h2 class="card-subtitle" style="color: ${accentColor};">
+                ${bloque.icono ? '<i class="'+bloque.icono+'"></i> ' : ''} ${bloque.subtitulo}
+              </h2>
+              <p class="card-text">${formatearTexto(bloque.texto)}</p>
+            </div>
+          `;
+        });
+      }
+
+      htmlContent += `</div>`;
+
+      // Dibujar la columna de la Imagen (Si Ideogram devolvió el Base64)
+      if (slide.imagen_base64) {
+        htmlContent += `
+            <div class="image-column">
+              <div class="image-wrapper">
+                <img src="${slide.imagen_base64}" alt="Ilustración">
+              </div>
+            </div>
+        `;
+      } else {
+         // Si no hay imagen, dibujamos un recuadro estético para mantener la estructura
+         htmlContent += `
+            <div class="image-column">
+              <div class="image-wrapper" style="background: #F5F2EB; display:flex; flex-direction:column; color: #A95A38; font-family:'Georgia';">
+                 <i class="fas fa-microscope" style="font-size: 40pt; margin-bottom:15px;"></i>
+                 <h3>Gráfico Conceptual</h3>
+              </div>
+            </div>
+         `;
+      }
+
+      htmlContent += `
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = htmlContent;
+  }
+
+  function formatearTexto(texto) {
+    if (!texto) return "";
+    let formateado = texto.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    return formateado.replace(/\n/g, "<br>");
+  }
+
+  // EXPORTADOR PDF DE ALTA RESOLUCIÓN
+  function descargarPDFPremium() {
+    const btn = document.getElementById('btnDescargar');
+    btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Renderizando PDF...`;
+    
+    // Ocultar barra para impresión
+    document.querySelector('.nav-bar').style.display = 'none';
+
+    const element = document.getElementById('slides-container');
+    
+    const opt = {
+      margin:       0,
+      filename:     'Presentacion_Etiologia_ACV.pdf',
+      image:        { type: 'jpeg', quality: 1.0 },
+      html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+    };
+    
+    html2pdf().set(opt).from(element).save().then(() => {
+      document.querySelector('.nav-bar').style.display = 'flex';
+      btn.innerHTML = `<i class="fas fa-file-pdf"></i> Guardar como PDF`;
+    });
   }
 </script>
 </body>
