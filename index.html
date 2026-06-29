@@ -10,10 +10,13 @@
     .form-group { margin-bottom: 20px; }
     label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
     input[type="file"] { width: 100%; padding: 10px; border: 1px dashed #ccc; border-radius: 6px; background: #fafafa; }
+    input[type="text"] { width: 95%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 20px;}
     .auto-slide-group { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; background: #fff0f0; padding: 15px; border-radius: 6px; }
     input[type="number"] { width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
     button { background: #b71c1c; color: white; border: none; padding: 12px 20px; width: 100%; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
     button:hover { background: #901616; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    #status { margin-top: 15px; font-weight: bold; text-align: center; color: #b71c1c; }
   </style>
 </head>
 <body>
@@ -21,6 +24,9 @@
 <div class="container">
   <h2>🧠 Creador de Presentaciones Clínicas</h2>
   
+  <label>ID de la Plantilla de Google Slides:</label>
+  <input type="text" id="templateId" placeholder="Ej: 1A2b3C4d5E6f7G8h9I0j...">
+
   <div class="form-group">
     <label>1. Instrucciones (Límites, estructura):</label>
     <input type="file" id="fileInstrucciones" accept=".pdf,.docx,.txt">
@@ -38,7 +44,7 @@
 
   <div class="auto-slide-group">
     <input type="checkbox" id="autoSlides" checked onchange="toggleSlideInput()">
-    <label for="autoSlides" style="margin:0;">¿Dejar que la IA calcule las diapositivas según las instrucciones?</label>
+    <label for="autoSlides" style="margin:0;">¿Dejar que la IA calcule las diapositivas?</label>
   </div>
 
   <div class="form-group" id="manualSlideContainer" style="display: none;">
@@ -46,17 +52,98 @@
     <input type="number" id="slideCount" value="5" min="1" max="20">
   </div>
 
-  <button onclick="generar()">Generar Presentación</button>
+  <button id="btnGenerar" onclick="generar()">Generar Presentación</button>
+  <div id="status"></div>
 </div>
 
 <script>
+  // ¡PON TU URL DE APPS SCRIPT AQUÍ!
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbynInTrf1A_YLOlxWQfrIWk3m0wqcgX_QHn2HLZQ73bAyyIv_XFH6YS4k-rC6fLBiI/exec"; 
+
   function toggleSlideInput() {
     const isAuto = document.getElementById('autoSlides').checked;
     document.getElementById('manualSlideContainer').style.display = isAuto ? 'none' : 'block';
   }
 
-  // Lógica para enviar los 3 archivos en Base64 a tu Apps Script (Debes conectar tu URL de despliegue aquí)
-  // Esta es la estructura conceptual que debes enviar en tu petición POST a Google Apps Script.
+  const getBase64 = (file) => new Promise((resolve, reject) => {
+    if (!file) return resolve(null);
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve({ data: reader.result.split(',')[1], mime: file.type });
+    reader.onerror = error => reject(error);
+  });
+
+  async function generar() {
+    const btn = document.getElementById('btnGenerar');
+    const status = document.getElementById('status');
+    
+    const fileInstrucciones = document.getElementById('fileInstrucciones').files[0];
+    const fileRubrica = document.getElementById('fileRubrica').files[0];
+    const fileContenido = document.getElementById('fileContenido').files[0];
+    const templateId = document.getElementById('templateId').value;
+
+    if (!fileContenido) {
+      alert("Debes subir al menos el Contenido Fuente.");
+      return;
+    }
+
+    btn.disabled = true;
+    status.innerText = "Procesando documentos y diseñando... (Puede tardar hasta 1 minuto)";
+
+    try {
+      const [inst, rub, cont] = await Promise.all([
+        getBase64(fileInstrucciones),
+        getBase64(fileRubrica),
+        getBase64(fileContenido)
+      ]);
+
+      const payload = {
+        action: "CREATE_DRAFT",
+        templateId: templateId,
+        fileName: "Presentación Clínica Generada",
+        autoSlides: document.getElementById('autoSlides').checked,
+        slideCount: document.getElementById('slideCount').value,
+        generateImages: true,
+        instruccionesFile: inst ? inst.data : "",
+        instruccionesMime: inst ? inst.mime : "",
+        rubricaFile: rub ? rub.data : "",
+        rubricaMime: rub ? rub.mime : "",
+        contenidoFile: cont ? cont.data : "",
+        contenidoMime: cont ? cont.mime : ""
+      };
+
+      const response = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+      
+      if (result.success && result.url) {
+        status.innerHTML = `¡Éxito! <a href="${result.url}" target="_blank">Abrir Presentación</a>`;
+      } else if (result.success && !result.url) {
+        // En caso de que se necesite el flujo de Finalize aparte, pero aquí lo haremos en un solo paso
+        status.innerText = "Borrador creado, procesando slides finales...";
+        payload.action = "FINALIZE";
+        payload.slides = result.slides;
+        
+        const resFinal = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+        const finalResult = await resFinal.json();
+        
+        if(finalResult.success) {
+           status.innerHTML = `¡Éxito! <a href="${finalResult.url}" target="_blank">Abrir Presentación</a>`;
+        } else {
+           throw new Error(finalResult.error);
+        }
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+      status.innerText = "Error: " + error.message;
+    } finally {
+      btn.disabled = false;
+    }
+  }
 </script>
 
 </body>
