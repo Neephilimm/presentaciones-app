@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GammaPro Clone - Catálogo y PNGs</title>
+  <title>GammaPro Clone - Catálogo Inteligente</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root { --primary: #2563EB; --primary-hover: #1D4ED8; --bg: #F3F4F6; --card: #FFFFFF; --text: #1F2937; --border: #E5E7EB; }
@@ -20,9 +20,13 @@
     select, input[type="text"], input[type="number"] { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; outline: none; transition: 0.3s; box-sizing: border-box; background: #F9FAFB; cursor: pointer;}
     select:focus, input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
     
-    /* ESTILOS DE CATÁLOGO */
     .template-selector { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 10px; }
     
+    .save-template-box { background: #EFF6FF; border: 1px dashed #93C5FD; padding: 15px; border-radius: 8px; margin-top: 10px; }
+    .save-btn { background: #3B82F6; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: 0.2s;}
+    .save-btn:hover { background: #2563EB; }
+    .clear-btn { background: none; border: none; color: #EF4444; font-size: 12px; cursor: pointer; text-decoration: underline; margin-top: 5px;}
+
     .file-drop { border: 2px dashed var(--border); border-radius: 8px; padding: 15px; text-align: center; background: #FAFAFA; transition: 0.3s; cursor: pointer; margin-bottom: 10px;}
     .file-drop:hover { border-color: var(--primary); background: #EFF6FF; }
     input[type="file"] { width: 100%; font-size: 13px; color: #6B7280; cursor: pointer;}
@@ -54,16 +58,25 @@
   </div>
 
   <div class="form-group">
-    <div class="section-title">1. Catálogo de Plantillas</div>
+    <div class="section-title">
+      1. Catálogo de Plantillas
+      <button class="clear-btn" onclick="limpiarPlantillas()" id="btnClear" style="display:none;">Limpiar mis plantillas guardadas</button>
+    </div>
+    
     <div class="template-selector">
       <select id="templateSelect" onchange="toggleCustomTemplate()">
         <option value="GAMMA_LIGHT">🎨 Estilo Gamma (Fondo Crema, Tarjetas Claras)</option>
         <option value="CORP_BLUE">🏢 Estilo Corporativo (Fondo Blanco, Acentos Azul Marino)</option>
         <option value="DARK_RED">🌙 Estilo Noche (Fondo Oscuro, Acentos Rojos)</option>
-        <option value="CUSTOM">🔗 Cargar mi propio diseño desde Google Slides...</option>
+        <option value="CUSTOM">🔗 Cargar nueva plantilla desde un enlace/ID de Google Slides...</option>
       </select>
     </div>
-    <input type="text" id="templateId" placeholder="Pega el ID de tu plantilla aquí..." style="display:none; margin-top:10px;">
+
+    <div id="customTemplateBox" class="save-template-box" style="display:none;">
+      <label>Pega el ID o Enlace de tu Google Slides:</label>
+      <input type="text" id="templateId" placeholder="Ej: 1A2b3C4d5E6f7G8h9I0j...">
+      <button class="save-btn" onclick="guardarPlantillaLocal()">💾 Guardar en mi catálogo para uso futuro</button>
+    </div>
   </div>
 
   <div class="form-group">
@@ -107,11 +120,84 @@
 </div>
 
 <script>
+  // PON AQUÍ TU URL DE APPS SCRIPT
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbynInTrf1A_YLOlxWQfrIWk3m0wqcgX_QHn2HLZQ73bAyyIv_XFH6YS4k-rC6fLBiI/exec"; 
 
+  // --- SISTEMA DE GUARDADO LOCAL (LOCALSTORAGE) ---
+  window.onload = () => {
+    cargarPlantillasGuardadas();
+  };
+
+  function cargarPlantillasGuardadas() {
+    const select = document.getElementById('templateSelect');
+    const btnClear = document.getElementById('btnClear');
+    
+    // Limpiar opciones guardadas previas en el select para no duplicarlas
+    document.querySelectorAll('.saved-template-option').forEach(opt => opt.remove());
+
+    let savedTemplates = JSON.parse(localStorage.getItem('gammaProTemplates') || '[]');
+    
+    if (savedTemplates.length > 0) {
+      btnClear.style.display = 'inline-block';
+      savedTemplates.forEach(tpl => {
+        let opt = document.createElement('option');
+        opt.value = "SAVED_" + tpl.id; // Le ponemos un prefijo para identificarla
+        opt.className = "saved-template-option";
+        opt.text = "⭐ " + tpl.name;
+        // Insertarla justo antes de la opción "CUSTOM"
+        select.insertBefore(opt, select.querySelector('option[value="CUSTOM"]'));
+      });
+    } else {
+      btnClear.style.display = 'none';
+    }
+  }
+
+  function guardarPlantillaLocal() {
+    let inputUrl = document.getElementById('templateId').value;
+    let match = inputUrl.match(/[-\w]{25,}/);
+    let finalId = match ? match[0] : inputUrl.trim();
+
+    if (!finalId) {
+      alert("Por favor, ingresa un ID o enlace válido de Google Slides.");
+      return;
+    }
+
+    let nombre = prompt("¿Qué nombre le pondrás a esta plantilla?\nEj: 'Diseño Clínico' o 'Plantilla Tesis'");
+    if (!nombre) return; // Si el usuario cancela
+
+    let savedTemplates = JSON.parse(localStorage.getItem('gammaProTemplates') || '[]');
+    
+    // Evitar duplicados exactos
+    if (savedTemplates.some(tpl => tpl.id === finalId)) {
+      alert("Esta plantilla ya está guardada en tu catálogo.");
+      return;
+    }
+
+    savedTemplates.push({ name: nombre, id: finalId });
+    localStorage.setItem('gammaProTemplates', JSON.stringify(savedTemplates));
+    
+    cargarPlantillasGuardadas();
+    
+    // Seleccionar automáticamente la plantilla recién guardada
+    document.getElementById('templateSelect').value = "SAVED_" + finalId;
+    toggleCustomTemplate();
+    
+    alert("¡Plantilla guardada con éxito en tu catálogo!");
+  }
+
+  function limpiarPlantillas() {
+    if(confirm("¿Estás seguro de que deseas borrar todas tus plantillas guardadas?")) {
+      localStorage.removeItem('gammaProTemplates');
+      cargarPlantillasGuardadas();
+      document.getElementById('templateSelect').value = "GAMMA_LIGHT";
+      toggleCustomTemplate();
+    }
+  }
+
+  // --- LÓGICA DE INTERFAZ ---
   function toggleCustomTemplate() {
     const isCustom = document.getElementById('templateSelect').value === "CUSTOM";
-    document.getElementById('templateId').style.display = isCustom ? 'block' : 'none';
+    document.getElementById('customTemplateBox').style.display = isCustom ? 'block' : 'none';
   }
 
   function toggleImageUpload() {
@@ -127,6 +213,7 @@
     reader.onerror = error => reject(error);
   });
 
+  // --- LÓGICA DE GENERACIÓN ---
   async function generar() {
     const btn = document.getElementById('btnGenerar');
     const status = document.getElementById('status');
@@ -157,13 +244,24 @@
         }
       }
 
+      // Detectar qué plantilla enviar al backend
       let templateVal = document.getElementById('templateSelect').value;
-      let isCustom = (templateVal === "CUSTOM");
-      let finalTemplateId = isCustom ? document.getElementById('templateId').value : "";
+      let finalThemeCode = "";
+      let finalTemplateId = "";
+
+      if (templateVal === "CUSTOM") {
+        finalThemeCode = "CUSTOM";
+        finalTemplateId = document.getElementById('templateId').value;
+      } else if (templateVal.startsWith("SAVED_")) {
+        finalThemeCode = "CUSTOM";
+        finalTemplateId = templateVal.replace("SAVED_", "");
+      } else {
+        finalThemeCode = templateVal; // GAMMA_LIGHT, CORP_BLUE, etc.
+      }
 
       const payload = {
         action: "CREATE_DRAFT",
-        themeCode: isCustom ? "CUSTOM" : templateVal,
+        themeCode: finalThemeCode,
         templateId: finalTemplateId,
         fileName: "Presentación Ejecutiva - " + new Date().getTime(),
         autoSlides: document.getElementById('autoSlides').checked,
