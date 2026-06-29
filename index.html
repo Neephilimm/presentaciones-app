@@ -3,207 +3,154 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GammaPro Clone - Catálogo Inteligente</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>GammaPro Web Engine</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <style>
-    :root { --primary: #2563EB; --primary-hover: #1D4ED8; --bg: #F3F4F6; --card: #FFFFFF; --text: #1F2937; --border: #E5E7EB; }
-    body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 40px 20px; display: flex; justify-content: center; }
-    .app-container { background: var(--card); max-width: 700px; width: 100%; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 40px; border: 1px solid var(--border); }
-    .header { text-align: center; margin-bottom: 40px; }
-    .header h1 { font-size: 28px; font-weight: 700; margin: 0; color: var(--primary); }
-    .header p { color: #6B7280; font-size: 15px; margin-top: 8px; }
-    
-    .section-title { font-size: 16px; font-weight: 600; margin-bottom: 15px; border-bottom: 2px solid var(--bg); padding-bottom: 8px; display: flex; align-items: center; justify-content: space-between;}
-    .form-group { margin-bottom: 25px; }
-    label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
-    
-    select, input[type="text"], input[type="number"] { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; outline: none; transition: 0.3s; box-sizing: border-box; background: #F9FAFB; cursor: pointer;}
-    select:focus, input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
-    
-    .template-selector { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 10px; }
-    
-    .save-template-box { background: #EFF6FF; border: 1px dashed #93C5FD; padding: 15px; border-radius: 8px; margin-top: 10px; }
-    .save-btn { background: #3B82F6; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 10px; transition: 0.2s;}
-    .save-btn:hover { background: #2563EB; }
-    .clear-btn { background: none; border: none; color: #EF4444; font-size: 12px; cursor: pointer; text-decoration: underline; margin-top: 5px;}
+    :root { 
+      --bg-color: #F8FAFC; 
+      --text-main: #0F172A; 
+      --text-muted: #475569; 
+      --accent: #2563EB; 
+      --card-bg: #FFFFFF;
+      --border-color: #E2E8F0;
+    }
 
-    .file-drop { border: 2px dashed var(--border); border-radius: 8px; padding: 15px; text-align: center; background: #FAFAFA; transition: 0.3s; cursor: pointer; margin-bottom: 10px;}
-    .file-drop:hover { border-color: var(--primary); background: #EFF6FF; }
-    input[type="file"] { width: 100%; font-size: 13px; color: #6B7280; cursor: pointer;}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); overflow-x: hidden; }
+
+    /* PANTALLA 1: CONFIGURACIÓN */
+    #setup-screen { display: flex; justify-content: center; padding: 40px 20px; min-height: 100vh; }
+    .setup-container { background: var(--card-bg); max-width: 650px; width: 100%; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 40px; border: 1px solid var(--border-color); }
+    .header { text-align: center; margin-bottom: 30px; }
+    .header h1 { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--accent); }
+    .header p { color: var(--text-muted); font-size: 15px; margin-top: 8px; }
     
-    .switch-container { display: flex; justify-content: space-between; align-items: center; background: #F9FAFB; padding: 15px 20px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border);}
+    .form-group { margin-bottom: 25px; }
+    .section-title { font-size: 16px; font-weight: 600; margin-bottom: 15px; border-bottom: 2px solid var(--bg-color); padding-bottom: 8px; }
+    .file-drop { border: 2px dashed var(--border-color); border-radius: 8px; padding: 15px; text-align: center; background: #F1F5F9; cursor: pointer; margin-bottom: 10px; transition: 0.2s;}
+    .file-drop:hover { border-color: var(--accent); background: #EFF6FF; }
+    input[type="file"] { width: 100%; font-size: 13px; color: var(--text-muted); }
+    select { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-family: inherit; font-size: 14px; margin-bottom: 10px; background: #F8FAFC;}
     
-    button.generate-btn { background: var(--primary); color: white; width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 20px; }
-    button.generate-btn:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);}
-    button.generate-btn:disabled { background: #9CA3AF; cursor: not-allowed; box-shadow: none; transform: none;}
+    .generate-btn { background: var(--accent); color: white; width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+    .generate-btn:hover { background: #1D4ED8; transform: translateY(-2px); }
+    .generate-btn:disabled { background: #94A3B8; cursor: not-allowed; transform: none; }
     
-    #status { margin-top: 20px; text-align: center; font-weight: 500; font-size: 14px; padding: 15px; border-radius: 8px; }
-    .status-processing { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A;}
-    .status-error { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA;}
+    #status { margin-top: 20px; text-align: center; font-weight: 500; font-size: 14px; padding: 15px; border-radius: 8px; background: #FEF3C7; color: #92400E; display: none;}
+
+    /* PANTALLA 2: VISOR WEB ESTILO GAMMA */
+    #presentation-screen { display: none; width: 100vw; height: 100vh; overflow-y: auto; scroll-behavior: smooth; }
     
-    .export-container { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
-    .export-btn { flex: 1; min-width: 150px; text-align: center; padding: 12px; border-radius: 8px; font-weight: 600; text-decoration: none; transition: 0.3s; display: inline-block;}
-    .btn-slides { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
-    .btn-pdf { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
-    .btn-pptx { background: #E0E7FF; color: #3730A3; border: 1px solid #C7D2FE; }
-    .export-btn:hover { opacity: 0.8; transform: translateY(-1px); }
+    .web-slide { 
+      min-height: 100vh; 
+      width: 100%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      padding: 60px 40px; 
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .slide-content { max-width: 1200px; width: 100%; display: flex; flex-direction: column; gap: 40px; }
+    .slide-title { font-family: 'Playfair Display', serif; font-size: 46px; color: var(--accent); border-bottom: 3px solid var(--accent); padding-bottom: 15px; margin-bottom: 10px;}
+    
+    /* Layout: Tarjetas a la izquierda, Imagen a la derecha */
+    .slide-layout { display: flex; gap: 50px; align-items: stretch; width: 100%; flex-wrap: wrap;}
+    
+    .blocks-grid { flex: 1; min-width: 350px; display: grid; grid-template-columns: 1fr; gap: 20px; }
+    
+    .gamma-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+      transition: transform 0.3s;
+    }
+    .gamma-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px rgba(0,0,0,0.05); }
+    
+    .card-icon { font-size: 28px; color: var(--accent); margin-bottom: 15px; }
+    .card-subtitle { font-size: 18px; font-weight: 600; margin-bottom: 12px; color: var(--text-main); }
+    .card-text { font-size: 15px; line-height: 1.6; color: var(--text-muted); }
+
+    .image-wrapper { flex: 1; min-width: 350px; display: flex; justify-content: center; align-items: center; }
+    /* Las imágenes de Ideogram se adaptarán al cuadro con sombras suaves */
+    .image-wrapper img { width: 100%; max-width: 500px; border-radius: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); object-fit: cover; }
+    
+    /* Barra Flotante */
+    .nav-bar { position: fixed; bottom: 30px; right: 30px; background: white; padding: 12px 25px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; gap: 20px; z-index: 100;}
+    .nav-btn { background: none; border: none; font-size: 15px; color: var(--text-main); cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 8px;}
+    .nav-btn:hover { color: var(--accent); }
+    .btn-pdf { color: #DC2626; }
+    .btn-pdf:hover { color: #991B1B; }
+    
+    /* Tema Oscuro */
+    body.theme-dark { --bg-color: #0F172A; --text-main: #F8FAFC; --text-muted: #94A3B8; --card-bg: #1E293B; --border-color: #334155; --accent: #38BDF8; }
+
+    /* MAGIA DE IMPRESIÓN (Para el PDF) */
+    @media print {
+      body { background: white !important; color: black !important; overflow: visible !important; }
+      body.theme-dark { --bg-color: #FFFFFF; --text-main: #000000; --text-muted: #333333; --card-bg: #F9FAFB; --border-color: #E5E7EB; --accent: #2563EB; }
+      #presentation-screen { display: block !important; height: auto !important; overflow: visible !important; }
+      .nav-bar { display: none !important; }
+      
+      .web-slide { 
+        min-height: auto; 
+        height: 100vh; /* Obliga a que cada slide ocupe exactamente una hoja A4/Carta */
+        page-break-after: always; 
+        padding: 10mm; 
+        align-items: flex-start;
+      }
+      .slide-layout { flex-wrap: nowrap; }
+      .gamma-card { break-inside: avoid; border: 1px solid #ddd; box-shadow: none !important; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    }
   </style>
 </head>
 <body>
 
-<div class="app-container">
-  <div class="header">
-    <h1>✨ Presentaciones Pro</h1>
-    <p>Catálogo de temas ejecutivos e inyección inteligente de imágenes.</p>
-  </div>
-
-  <div class="form-group">
-    <div class="section-title">
-      1. Catálogo de Plantillas
-      <button class="clear-btn" onclick="limpiarPlantillas()" id="btnClear" style="display:none;">Limpiar mis plantillas guardadas</button>
+<div id="setup-screen">
+  <div class="setup-container">
+    <div class="header">
+      <h1>⚕️ GammaPro Web Engine</h1>
+      <p>Powered by Ideogram 3.0 & LLaMA</p>
     </div>
-    
-    <div class="template-selector">
-      <select id="templateSelect" onchange="toggleCustomTemplate()">
-        <option value="GAMMA_LIGHT">🎨 Estilo Gamma (Fondo Crema, Tarjetas Claras)</option>
-        <option value="CORP_BLUE">🏢 Estilo Corporativo (Fondo Blanco, Acentos Azul Marino)</option>
-        <option value="DARK_RED">🌙 Estilo Noche (Fondo Oscuro, Acentos Rojos)</option>
-        <option value="CUSTOM">🔗 Cargar nueva plantilla desde un enlace/ID de Google Slides...</option>
+
+    <div class="form-group">
+      <div class="section-title">1. Configuración Visual</div>
+      <select id="themeSelect">
+        <option value="light">Tema Clínico (Claro)</option>
+        <option value="dark">Tema Quirófano (Oscuro)</option>
       </select>
     </div>
 
-    <div id="customTemplateBox" class="save-template-box" style="display:none;">
-      <label>Pega el ID o Enlace de tu Google Slides:</label>
-      <input type="text" id="templateId" placeholder="Ej: 1A2b3C4d5E6f7G8h9I0j...">
-      <button class="save-btn" onclick="guardarPlantillaLocal()">💾 Guardar en mi catálogo para uso futuro</button>
+    <div class="form-group">
+      <div class="section-title">2. Documentos Fuente</div>
+      <div class="file-drop"><label>Instrucciones (Requerido para Portada)</label><input type="file" id="fileInstrucciones" accept=".pdf,.docx,.txt"></div>
+      <div class="file-drop"><label>Rúbrica (Evaluación)</label><input type="file" id="fileRubrica" accept=".pdf,.docx,.txt"></div>
+      <div class="file-drop" style="border-color: var(--accent); background: #EFF6FF;"><label>Contenido Base *Requerido</label><input type="file" id="fileContenido" accept=".pdf,.docx,.txt"></div>
     </div>
-  </div>
 
-  <div class="form-group">
-    <div class="switch-container">
-      <label style="margin:0;">¿Dejar que la IA calcule las diapositivas?</label>
-      <input type="checkbox" id="autoSlides" checked onchange="document.getElementById('manualSlideCount').style.display = this.checked ? 'none' : 'block'">
-    </div>
-    <input type="number" id="manualSlideCount" value="8" min="1" max="20" style="display:none;" placeholder="Número de slides">
+    <button id="btnGenerar" class="generate-btn" onclick="generar()">Renderizar Web con Ideogram</button>
+    <div id="status"></div>
   </div>
+</div>
 
-  <div class="form-group">
-    <div class="section-title">2. Documentos Fuente</div>
-    <div class="file-drop"><label>Instrucciones (Opcional)</label><input type="file" id="fileInstrucciones" accept=".pdf,.docx,.txt"></div>
-    <div class="file-drop"><label>Rúbrica (Opcional)</label><input type="file" id="fileRubrica" accept=".pdf,.docx,.txt"></div>
-    <div class="file-drop" style="border-color: var(--primary); background: #EFF6FF;"><label>Contenido Base *Requerido</label><input type="file" id="fileContenido" accept=".pdf,.docx,.txt"></div>
-  </div>
-
-  <div class="form-group">
-    <div class="section-title">3. Motor de Imágenes</div>
-    <select id="imageMode" onchange="toggleImageUpload()">
-      <option value="AI">Generar con IA (Simulación de PNG transparente)</option>
-      <option value="USER">Subir mis propios PNGs transparentes</option>
-      <option value="NONE">Modo texto plano (Sin imágenes)</option>
-    </select>
-    
-    <div id="userImageUpload" class="file-drop" style="display:none; margin-top:10px;">
-      <label>Sube tus imágenes (Se repartirán por las slides)</label>
-      <input type="file" id="fileUserImages" accept="image/*" multiple>
-    </div>
-  </div>
-
-  <button id="btnGenerar" class="generate-btn" onclick="generar()">Construir Presentación</button>
+<div id="presentation-screen">
+  <div id="slides-container"></div>
   
-  <div id="status" style="display:none;"></div>
-  
-  <div id="exportActions" class="export-container" style="display:none;">
-    <a id="linkSlides" href="#" target="_blank" class="export-btn btn-slides">Ver en Slides</a>
-    <a id="linkPdf" href="#" target="_blank" class="export-btn btn-pdf">Descargar PDF</a>
-    <a id="linkPptx" href="#" target="_blank" class="export-btn btn-pptx">Descargar PPTX</a>
+  <div class="nav-bar">
+    <button class="nav-btn btn-pdf" onclick="window.print()"><i class="fas fa-file-pdf"></i> Descargar PDF</button>
+    <span style="color: var(--border-color);">|</span>
+    <button class="nav-btn" onclick="location.reload()"><i class="fas fa-home"></i> Nuevo</button>
   </div>
 </div>
 
 <script>
-  // PON AQUÍ TU URL DE APPS SCRIPT
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbynInTrf1A_YLOlxWQfrIWk3m0wqcgX_QHn2HLZQ73bAyyIv_XFH6YS4k-rC6fLBiI/exec"; 
-
-  // --- SISTEMA DE GUARDADO LOCAL (LOCALSTORAGE) ---
-  window.onload = () => {
-    cargarPlantillasGuardadas();
-  };
-
-  function cargarPlantillasGuardadas() {
-    const select = document.getElementById('templateSelect');
-    const btnClear = document.getElementById('btnClear');
-    
-    // Limpiar opciones guardadas previas en el select para no duplicarlas
-    document.querySelectorAll('.saved-template-option').forEach(opt => opt.remove());
-
-    let savedTemplates = JSON.parse(localStorage.getItem('gammaProTemplates') || '[]');
-    
-    if (savedTemplates.length > 0) {
-      btnClear.style.display = 'inline-block';
-      savedTemplates.forEach(tpl => {
-        let opt = document.createElement('option');
-        opt.value = "SAVED_" + tpl.id; // Le ponemos un prefijo para identificarla
-        opt.className = "saved-template-option";
-        opt.text = "⭐ " + tpl.name;
-        // Insertarla justo antes de la opción "CUSTOM"
-        select.insertBefore(opt, select.querySelector('option[value="CUSTOM"]'));
-      });
-    } else {
-      btnClear.style.display = 'none';
-    }
-  }
-
-  function guardarPlantillaLocal() {
-    let inputUrl = document.getElementById('templateId').value;
-    let match = inputUrl.match(/[-\w]{25,}/);
-    let finalId = match ? match[0] : inputUrl.trim();
-
-    if (!finalId) {
-      alert("Por favor, ingresa un ID o enlace válido de Google Slides.");
-      return;
-    }
-
-    let nombre = prompt("¿Qué nombre le pondrás a esta plantilla?\nEj: 'Diseño Clínico' o 'Plantilla Tesis'");
-    if (!nombre) return; // Si el usuario cancela
-
-    let savedTemplates = JSON.parse(localStorage.getItem('gammaProTemplates') || '[]');
-    
-    // Evitar duplicados exactos
-    if (savedTemplates.some(tpl => tpl.id === finalId)) {
-      alert("Esta plantilla ya está guardada en tu catálogo.");
-      return;
-    }
-
-    savedTemplates.push({ name: nombre, id: finalId });
-    localStorage.setItem('gammaProTemplates', JSON.stringify(savedTemplates));
-    
-    cargarPlantillasGuardadas();
-    
-    // Seleccionar automáticamente la plantilla recién guardada
-    document.getElementById('templateSelect').value = "SAVED_" + finalId;
-    toggleCustomTemplate();
-    
-    alert("¡Plantilla guardada con éxito en tu catálogo!");
-  }
-
-  function limpiarPlantillas() {
-    if(confirm("¿Estás seguro de que deseas borrar todas tus plantillas guardadas?")) {
-      localStorage.removeItem('gammaProTemplates');
-      cargarPlantillasGuardadas();
-      document.getElementById('templateSelect').value = "GAMMA_LIGHT";
-      toggleCustomTemplate();
-    }
-  }
-
-  // --- LÓGICA DE INTERFAZ ---
-  function toggleCustomTemplate() {
-    const isCustom = document.getElementById('templateSelect').value === "CUSTOM";
-    document.getElementById('customTemplateBox').style.display = isCustom ? 'block' : 'none';
-  }
-
-  function toggleImageUpload() {
-    const isUser = document.getElementById('imageMode').value === "USER";
-    document.getElementById('userImageUpload').style.display = isUser ? 'block' : 'none';
-  }
+  // YA ESTÁ TU URL REAL AQUÍ
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbynInTrf1A_YLOlxWQfrIWk3m0wqcgX_QHn2HLZQ73bAyyIv_XFH6YS4k-rC6fLBiI/exec";
 
   const getBase64 = (file) => new Promise((resolve, reject) => {
     if (!file) return resolve(null);
@@ -213,20 +160,16 @@
     reader.onerror = error => reject(error);
   });
 
-  // --- LÓGICA DE GENERACIÓN ---
   async function generar() {
     const btn = document.getElementById('btnGenerar');
     const status = document.getElementById('status');
-    const exportDiv = document.getElementById('exportActions');
     const fileContenido = document.getElementById('fileContenido').files[0];
     
     if (!fileContenido) return alert("El archivo de Contenido Base es obligatorio.");
 
     btn.disabled = true;
-    exportDiv.style.display = 'none';
     status.style.display = 'block';
-    status.className = 'status-processing';
-    status.innerText = "Construyendo arquitectura visual... ⏳ (Aprox. 1 minuto)";
+    status.innerText = "LLaMA procesando textos e Ideogram ilustrando... ⏳ (Aprox 30 seg)";
 
     try {
       const [inst, rub, cont] = await Promise.all([
@@ -235,39 +178,9 @@
         getBase64(fileContenido)
       ]);
 
-      let userImagesData = [];
-      if (document.getElementById('imageMode').value === "USER") {
-        const imageFiles = document.getElementById('fileUserImages').files;
-        for (let img of imageFiles) {
-          let b64 = await getBase64(img);
-          if (b64) userImagesData.push(b64);
-        }
-      }
-
-      // Detectar qué plantilla enviar al backend
-      let templateVal = document.getElementById('templateSelect').value;
-      let finalThemeCode = "";
-      let finalTemplateId = "";
-
-      if (templateVal === "CUSTOM") {
-        finalThemeCode = "CUSTOM";
-        finalTemplateId = document.getElementById('templateId').value;
-      } else if (templateVal.startsWith("SAVED_")) {
-        finalThemeCode = "CUSTOM";
-        finalTemplateId = templateVal.replace("SAVED_", "");
-      } else {
-        finalThemeCode = templateVal; // GAMMA_LIGHT, CORP_BLUE, etc.
-      }
-
       const payload = {
-        action: "CREATE_DRAFT",
-        themeCode: finalThemeCode,
-        templateId: finalTemplateId,
-        fileName: "Presentación Ejecutiva - " + new Date().getTime(),
-        autoSlides: document.getElementById('autoSlides').checked,
-        slideCount: document.getElementById('manualSlideCount').value,
-        imageMode: document.getElementById('imageMode').value,
-        userImages: userImagesData,
+        action: "GENERATE_WEB_PRESENTATION",
+        autoSlides: true,
         instruccionesFile: inst ? inst.data : "", instruccionesMime: inst ? inst.mime : "",
         rubricaFile: rub ? rub.data : "", rubricaMime: rub ? rub.mime : "",
         contenidoFile: cont ? cont.data : "", contenidoMime: cont ? cont.mime : ""
@@ -282,21 +195,78 @@
 
       const result = await response.json();
       
-      if (result.success && result.id) {
-        status.style.display = 'none';
-        exportDiv.style.display = 'flex';
-        document.getElementById('linkSlides').href = `https://docs.google.com/presentation/d/${result.id}/edit`;
-        document.getElementById('linkPdf').href = `https://docs.google.com/presentation/d/${result.id}/export/pdf`;
-        document.getElementById('linkPptx').href = `https://docs.google.com/presentation/d/${result.id}/export/pptx`;
+      if (result.success && result.slides) {
+        renderizarPresentacion(result.slides);
       } else {
         throw new Error(result.error);
       }
     } catch (error) {
-      status.className = 'status-error';
       status.innerText = "Error: " + error.message;
-    } finally {
       btn.disabled = false;
     }
+  }
+
+  function renderizarPresentacion(slides) {
+    if (document.getElementById('themeSelect').value === 'dark') document.body.classList.add('theme-dark');
+
+    document.getElementById('setup-screen').style.display = 'none';
+    const presScreen = document.getElementById('presentation-screen');
+    const container = document.getElementById('slides-container');
+    presScreen.style.display = 'block';
+
+    let htmlContent = "";
+
+    slides.forEach((slide, index) => {
+      // Invertir el layout pares/impares para darle dinamismo visual
+      let isReversed = index % 2 !== 0 ? "flex-direction: row-reverse;" : "";
+
+      htmlContent += `
+        <div class="web-slide">
+          <div class="slide-content">
+            <h1 class="slide-title">${slide.titulo}</h1>
+            <div class="slide-layout" style="${isReversed}">
+              
+              <div class="blocks-grid">
+      `;
+      
+      if (slide.bloques && slide.bloques.length > 0) {
+        slide.bloques.forEach(bloque => {
+          let iconClass = bloque.icono ? bloque.icono : "fas fa-notes-medical"; 
+          htmlContent += `
+            <div class="gamma-card">
+              <div class="card-icon"><i class="${iconClass}"></i></div>
+              <h2 class="card-subtitle">${bloque.subtitulo}</h2>
+              <p class="card-text">${formatearTexto(bloque.texto)}</p>
+            </div>
+          `;
+        });
+      }
+
+      htmlContent += `</div>`;
+
+      // Inyectar la imagen de Ideogram si existe
+      if (slide.imagen_url) {
+        htmlContent += `
+          <div class="image-wrapper">
+            <img src="${slide.imagen_url}" alt="Ideogram Illustration">
+          </div>
+        `;
+      }
+
+      htmlContent += `
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = htmlContent;
+  }
+
+  function formatearTexto(texto) {
+    if (!texto) return "";
+    let formateado = texto.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    return formateado.replace(/\n/g, "<br>");
   }
 </script>
 </body>
