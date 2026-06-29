@@ -2,67 +2,117 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Generador Gamma Pro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GammaPro Clone - PPTX & PDF</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 40px; color: #333; }
-    .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-    h2 { color: #b71c1c; margin-bottom: 25px; }
-    .form-group { margin-bottom: 20px; }
-    label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
-    input[type="file"] { width: 100%; padding: 10px; border: 1px dashed #ccc; border-radius: 6px; background: #fafafa; }
-    input[type="text"] { width: 95%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 20px;}
-    .auto-slide-group { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; background: #fff0f0; padding: 15px; border-radius: 6px; }
-    input[type="number"] { width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-    button { background: #b71c1c; color: white; border: none; padding: 12px 20px; width: 100%; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-    button:hover { background: #901616; }
-    button:disabled { background: #ccc; cursor: not-allowed; }
-    #status { margin-top: 15px; font-weight: bold; text-align: center; color: #b71c1c; }
+    :root { --primary: #8C593B; --primary-hover: #6D432A; --bg: #F9F9F6; --card: #FFFFFF; --text: #3B312A; --border: #E5E7EB; }
+    body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 40px 20px; display: flex; justify-content: center; }
+    .app-container { background: var(--card); max-width: 700px; width: 100%; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 40px; border: 1px solid var(--border); }
+    .header { text-align: center; margin-bottom: 40px; }
+    .header h1 { font-size: 28px; font-weight: 700; margin: 0; color: var(--primary); }
+    .header p { color: #6B7280; font-size: 15px; margin-top: 8px; }
+    
+    .section-title { font-size: 16px; font-weight: 600; margin-bottom: 15px; border-bottom: 2px solid var(--bg); padding-bottom: 8px; }
+    .form-group { margin-bottom: 25px; }
+    label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+    
+    select, input[type="text"], input[type="number"] { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 14px; outline: none; transition: 0.3s; box-sizing: border-box; }
+    select:focus, input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(140, 89, 59, 0.1); }
+    
+    .file-drop { border: 2px dashed var(--border); border-radius: 8px; padding: 15px; text-align: center; background: #FAFAFA; transition: 0.3s; cursor: pointer; margin-bottom: 10px;}
+    .file-drop:hover { border-color: var(--primary); background: #FFF; }
+    input[type="file"] { width: 100%; font-size: 13px; color: #6B7280; }
+    
+    .switch-container { display: flex; justify-content: space-between; align-items: center; background: var(--bg); padding: 15px 20px; border-radius: 8px; margin-bottom: 15px; }
+    
+    button.generate-btn { background: var(--primary); color: white; width: 100%; padding: 16px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 20px; }
+    button.generate-btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
+    button.generate-btn:disabled { background: #9CA3AF; cursor: not-allowed; }
+    
+    #status { margin-top: 20px; text-align: center; font-weight: 500; font-size: 14px; padding: 15px; border-radius: 8px; }
+    .status-processing { background: #FEF3C7; color: #92400E; }
+    .status-error { background: #FEE2E2; color: #991B1B; }
+    
+    /* Botones de exportación */
+    .export-container { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
+    .export-btn { flex: 1; min-width: 150px; text-align: center; padding: 12px; border-radius: 8px; font-weight: 600; text-decoration: none; transition: 0.3s; display: inline-block;}
+    .btn-slides { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+    .btn-pdf { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
+    .btn-pptx { background: #E0E7FF; color: #3730A3; border: 1px solid #C7D2FE; }
+    .export-btn:hover { opacity: 0.8; transform: translateY(-1px); }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <h2>🧠 Creador de Presentaciones Clínicas</h2>
+<div class="app-container">
+  <div class="header">
+    <h1>✨ Presentaciones Pro</h1>
+    <p>Convierte tus documentos en presentaciones ejecutivas. Exporta a PDF y PPTX.</p>
+  </div>
+
+  <div class="form-group">
+    <div class="section-title">1. Diseño y Estructura</div>
+    <label>Plantilla Maestra:</label>
+    <select id="templateSelect" onchange="toggleCustomTemplate()">
+      <option value="">Auto-Diseño (Estilo Gamma Crema/Café)</option>
+      <option value="CUSTOM">Usar mi propio ID de Google Slides...</option>
+    </select>
+    <input type="text" id="templateId" placeholder="Pega el ID de tu plantilla aquí..." style="display:none; margin-top:10px;">
+  </div>
+
+  <div class="form-group">
+    <div class="switch-container">
+      <label style="margin:0;">Calcular diapositivas automáticamente</label>
+      <input type="checkbox" id="autoSlides" checked onchange="document.getElementById('manualSlideCount').style.display = this.checked ? 'none' : 'block'">
+    </div>
+    <input type="number" id="manualSlideCount" value="8" min="1" max="20" style="display:none;" placeholder="Número de slides">
+  </div>
+
+  <div class="form-group">
+    <div class="section-title">2. Documentos Fuente</div>
+    <div class="file-drop"><label>Instrucciones (Límites, formato)</label><input type="file" id="fileInstrucciones" accept=".pdf,.docx,.txt"></div>
+    <div class="file-drop"><label>Rúbrica (Evaluación)</label><input type="file" id="fileRubrica" accept=".pdf,.docx,.txt"></div>
+    <div class="file-drop"><label>Contenido (Materia) *Requerido</label><input type="file" id="fileContenido" accept=".pdf,.docx,.txt"></div>
+  </div>
+
+  <div class="form-group">
+    <div class="section-title">3. Modo de Imágenes</div>
+    <select id="imageMode" onchange="toggleImageUpload()">
+      <option value="AI">Generar ilustraciones con Inteligencia Artificial</option>
+      <option value="USER">Subir mis propias imágenes</option>
+      <option value="NONE">No incluir imágenes</option>
+    </select>
+    
+    <div id="userImageUpload" class="file-drop" style="display:none; margin-top:10px;">
+      <label>Sube tus imágenes (Se distribuirán en las slides)</label>
+      <input type="file" id="fileUserImages" accept="image/*" multiple>
+    </div>
+  </div>
+
+  <button id="btnGenerar" class="generate-btn" onclick="generar()">Construir Presentación</button>
   
-  <label>ID de la Plantilla de Google Slides:</label>
-  <input type="text" id="templateId" placeholder="Ej: 1A2b3C4d5E6f7G8h9I0j...">
-
-  <div class="form-group">
-    <label>1. Instrucciones (Límites, estructura):</label>
-    <input type="file" id="fileInstrucciones" accept=".pdf,.docx,.txt">
+  <div id="status" style="display:none;"></div>
+  
+  <div id="exportActions" class="export-container" style="display:none;">
+    <a id="linkSlides" href="#" target="_blank" class="export-btn btn-slides">Ver en Slides</a>
+    <a id="linkPdf" href="#" target="_blank" class="export-btn btn-pdf">Descargar PDF</a>
+    <a id="linkPptx" href="#" target="_blank" class="export-btn btn-pptx">Descargar PPTX</a>
   </div>
-
-  <div class="form-group">
-    <label>2. Rúbrica (Criterios de evaluación, formato APA):</label>
-    <input type="file" id="fileRubrica" accept=".pdf,.docx,.txt">
-  </div>
-
-  <div class="form-group">
-    <label>3. Contenido Fuente (Materia a exponer):</label>
-    <input type="file" id="fileContenido" accept=".pdf,.docx,.txt">
-  </div>
-
-  <div class="auto-slide-group">
-    <input type="checkbox" id="autoSlides" checked onchange="toggleSlideInput()">
-    <label for="autoSlides" style="margin:0;">¿Dejar que la IA calcule las diapositivas?</label>
-  </div>
-
-  <div class="form-group" id="manualSlideContainer" style="display: none;">
-    <label>Número manual de diapositivas:</label>
-    <input type="number" id="slideCount" value="5" min="1" max="20">
-  </div>
-
-  <button id="btnGenerar" onclick="generar()">Generar Presentación</button>
-  <div id="status"></div>
 </div>
 
 <script>
-  // ¡PON TU URL DE APPS SCRIPT AQUÍ!
+  // ¡TU URL DE APPS SCRIPT AQUÍ!
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbynInTrf1A_YLOlxWQfrIWk3m0wqcgX_QHn2HLZQ73bAyyIv_XFH6YS4k-rC6fLBiI/exec"; 
 
-  function toggleSlideInput() {
-    const isAuto = document.getElementById('autoSlides').checked;
-    document.getElementById('manualSlideContainer').style.display = isAuto ? 'none' : 'block';
+  function toggleCustomTemplate() {
+    const isCustom = document.getElementById('templateSelect').value === "CUSTOM";
+    document.getElementById('templateId').style.display = isCustom ? 'block' : 'none';
+  }
+
+  function toggleImageUpload() {
+    const isUser = document.getElementById('imageMode').value === "USER";
+    document.getElementById('userImageUpload').style.display = isUser ? 'block' : 'none';
   }
 
   const getBase64 = (file) => new Promise((resolve, reject) => {
@@ -76,75 +126,76 @@
   async function generar() {
     const btn = document.getElementById('btnGenerar');
     const status = document.getElementById('status');
-    
-    const fileInstrucciones = document.getElementById('fileInstrucciones').files[0];
-    const fileRubrica = document.getElementById('fileRubrica').files[0];
+    const exportDiv = document.getElementById('exportActions');
     const fileContenido = document.getElementById('fileContenido').files[0];
-    const templateId = document.getElementById('templateId').value;
-
-    if (!fileContenido) {
-      alert("Debes subir al menos el Contenido Fuente.");
-      return;
-    }
+    
+    if (!fileContenido) return alert("Debes subir el Contenido Fuente.");
 
     btn.disabled = true;
-    status.innerText = "Procesando documentos y diseñando... (Puede tardar hasta 1 minuto)";
+    exportDiv.style.display = 'none';
+    status.style.display = 'block';
+    status.className = 'status-processing';
+    status.innerText = "Analizando documentos y renderizando diseño... ⏳";
 
     try {
       const [inst, rub, cont] = await Promise.all([
-        getBase64(fileInstrucciones),
-        getBase64(fileRubrica),
+        getBase64(document.getElementById('fileInstrucciones').files[0]),
+        getBase64(document.getElementById('fileRubrica').files[0]),
         getBase64(fileContenido)
       ]);
 
+      let userImagesData = [];
+      if (document.getElementById('imageMode').value === "USER") {
+        const imageFiles = document.getElementById('fileUserImages').files;
+        for (let img of imageFiles) {
+          let b64 = await getBase64(img);
+          if (b64) userImagesData.push(b64);
+        }
+      }
+
+      let templateVal = document.getElementById('templateSelect').value;
+      let finalTemplateId = templateVal === "CUSTOM" ? document.getElementById('templateId').value : templateVal;
+
       const payload = {
         action: "CREATE_DRAFT",
-        templateId: templateId,
-        fileName: "Presentación Clínica Generada",
+        templateId: finalTemplateId,
+        fileName: "Presentación Generada - " + new Date().getTime(),
         autoSlides: document.getElementById('autoSlides').checked,
-        slideCount: document.getElementById('slideCount').value,
-        generateImages: true,
-        instruccionesFile: inst ? inst.data : "",
-        instruccionesMime: inst ? inst.mime : "",
-        rubricaFile: rub ? rub.data : "",
-        rubricaMime: rub ? rub.mime : "",
-        contenidoFile: cont ? cont.data : "",
-        contenidoMime: cont ? cont.mime : ""
+        slideCount: document.getElementById('manualSlideCount').value,
+        imageMode: document.getElementById('imageMode').value,
+        userImages: userImagesData,
+        instruccionesFile: inst ? inst.data : "", instruccionesMime: inst ? inst.mime : "",
+        rubricaFile: rub ? rub.data : "", rubricaMime: rub ? rub.mime : "",
+        contenidoFile: cont ? cont.data : "", contenidoMime: cont ? cont.mime : ""
       };
 
       const response = await fetch(SCRIPT_URL, {
         method: "POST",
-        body: JSON.stringify(payload)
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+        redirect: "follow"
       });
 
       const result = await response.json();
       
-      if (result.success && result.url) {
-        status.innerHTML = `¡Éxito! <a href="${result.url}" target="_blank">Abrir Presentación</a>`;
-      } else if (result.success && !result.url) {
-        // En caso de que se necesite el flujo de Finalize aparte, pero aquí lo haremos en un solo paso
-        status.innerText = "Borrador creado, procesando slides finales...";
-        payload.action = "FINALIZE";
-        payload.slides = result.slides;
+      if (result.success && result.id) {
+        status.style.display = 'none';
+        exportDiv.style.display = 'flex';
         
-        const resFinal = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
-        const finalResult = await resFinal.json();
-        
-        if(finalResult.success) {
-           status.innerHTML = `¡Éxito! <a href="${finalResult.url}" target="_blank">Abrir Presentación</a>`;
-        } else {
-           throw new Error(finalResult.error);
-        }
+        // Asignación de URLs dinámicas para descarga directa
+        document.getElementById('linkSlides').href = `https://docs.google.com/presentation/d/${result.id}/edit`;
+        document.getElementById('linkPdf').href = `https://docs.google.com/presentation/d/${result.id}/export/pdf`;
+        document.getElementById('linkPptx').href = `https://docs.google.com/presentation/d/${result.id}/export/pptx`;
       } else {
         throw new Error(result.error);
       }
     } catch (error) {
-      status.innerText = "Error: " + error.message;
+      status.className = 'status-error';
+      status.innerText = "Error crítico: " + error.message;
     } finally {
       btn.disabled = false;
     }
   }
 </script>
-
 </body>
 </html>
