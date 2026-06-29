@@ -1,189 +1,63 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-slate-950 text-slate-100">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gamma AI - Creador de Presentaciones Avanzado</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .gradient-bg { background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.15), transparent 40%), radial-gradient(circle at bottom left, rgba(168, 85, 247, 0.1), transparent 40%); }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #020617; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-    </style>
+  <meta charset="UTF-8">
+  <title>Generador Gamma Pro</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 40px; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    h2 { color: #b71c1c; margin-bottom: 25px; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
+    input[type="file"] { width: 100%; padding: 10px; border: 1px dashed #ccc; border-radius: 6px; background: #fafafa; }
+    .auto-slide-group { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; background: #fff0f0; padding: 15px; border-radius: 6px; }
+    input[type="number"] { width: 80px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    button { background: #b71c1c; color: white; border: none; padding: 12px 20px; width: 100%; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+    button:hover { background: #901616; }
+  </style>
 </head>
-<body class="min-h-full gradient-bg flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+<body>
 
-    <header class="border-b border-slate-800/60 bg-slate-950/80 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="bg-gradient-to-tr from-indigo-500 to-purple-500 h-8 w-8 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">Γ</div>
-                <span class="text-lg font-semibold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">Gamma<span class="text-indigo-400 font-normal">.clone</span></span>
-            </div>
-            <div class="flex items-center space-x-2 text-xs font-medium text-slate-400 bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-full">
-                <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>Motor Gemini Activo</span>
-            </div>
-        </div>
-    </header>
+<div class="container">
+  <h2>🧠 Creador de Presentaciones Clínicas</h2>
+  
+  <div class="form-group">
+    <label>1. Instrucciones (Límites, estructura):</label>
+    <input type="file" id="fileInstrucciones" accept=".pdf,.docx,.txt">
+  </div>
 
-    <main class="max-w-5xl w-full mx-auto px-4 py-12 flex-grow">
-        <div class="text-center mb-12">
-            <h1 class="text-4xl font-bold tracking-tight text-white sm:text-5xl bg-gradient-to-b from-white to-slate-300 bg-clip-text text-transparent">Genera presentaciones espectaculares</h1>
-        </div>
+  <div class="form-group">
+    <label>2. Rúbrica (Criterios de evaluación, formato APA):</label>
+    <input type="file" id="fileRubrica" accept=".pdf,.docx,.txt">
+  </div>
 
-        <div id="step-setup" class="bg-slate-900/60 border border-slate-800/80 backdrop-blur-sm p-8 rounded-2xl shadow-2xl transition-all duration-300">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div class="md:col-span-2 flex flex-col">
-                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Instrucciones de diseño</label>
-                    <textarea id="instructions" rows="4" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-3 text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 resize-none flex-grow" placeholder="Ej: Mantén un tono formal, estructurado..."></textarea>
-                </div>
-                <div class="flex flex-col">
-                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Extensión sugerida</label>
-                    <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-4 flex flex-col justify-center items-center flex-grow">
-                        <span class="text-xs text-slate-500 mb-1">Diapositivas</span>
-                        <div class="flex items-center space-x-4">
-                            <button type="button" onclick="document.getElementById('slideCount').stepDown()" class="text-slate-400 hover:text-white font-bold text-xl px-2 bg-slate-900 rounded border border-slate-800">-</button>
-                            <input type="number" id="slideCount" value="5" min="1" max="20" class="w-16 text-center bg-transparent border-none text-2xl font-bold text-indigo-400 focus:outline-none">
-                            <button type="button" onclick="document.getElementById('slideCount').stepUp()" class="text-slate-400 hover:text-white font-bold text-xl px-2 bg-slate-900 rounded border border-slate-800">+</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  <div class="form-group">
+    <label>3. Contenido Fuente (Materia a exponer):</label>
+    <input type="file" id="fileContenido" accept=".pdf,.docx,.txt">
+  </div>
 
-            <div class="bg-slate-950/50 border border-slate-800/50 rounded-xl p-5 mb-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Plantilla Maestra (Opcional)</label>
-                    <input type="text" id="templateUrl" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-2 text-slate-200 text-sm focus:outline-none focus:border-indigo-500" placeholder="Pega el enlace de tu Google Slides base aquí...">
-                    <p class="text-[10px] text-slate-500 mt-1">Si la dejas vacía, se usará el diseño por defecto de Google.</p>
-                </div>
-                <div class="flex flex-col justify-center">
-                    <label class="flex items-center space-x-3 cursor-pointer group">
-                        <input type="checkbox" id="generateImages" class="w-5 h-5 accent-indigo-500 bg-slate-900 border-slate-700 rounded cursor-pointer">
-                        <div>
-                            <span class="text-sm font-semibold text-slate-300 group-hover:text-white transition-colors">Generar ilustraciones con IA</span>
-                            <p class="text-[10px] text-slate-500">Imágenes gratuitas insertadas en cada slide.</p>
-                        </div>
-                    </label>
-                </div>
-            </div>
+  <div class="auto-slide-group">
+    <input type="checkbox" id="autoSlides" checked onchange="toggleSlideInput()">
+    <label for="autoSlides" style="margin:0;">¿Dejar que la IA calcule las diapositivas según las instrucciones?</label>
+  </div>
 
-            <div class="mb-8">
-                <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 block">Documento de Origen</label>
-                <div class="relative border-2 border-dashed border-slate-800 hover:border-indigo-500/50 bg-slate-950/40 hover:bg-slate-950/80 rounded-xl p-8 text-center transition-all cursor-pointer group">
-                    <input type="file" id="fileInput" accept=".pdf,.docx,.pptx,.xlsx,.csv,.txt" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="updateFileName(this)">
-                    <div class="space-y-2">
-                        <div class="text-3xl">📥</div>
-                        <div class="text-sm text-slate-300"><span class="font-medium text-indigo-400">Sube un archivo</span> o arrástralo aquí</div>
-                        <p id="file-chosen" class="text-xs text-emerald-400 font-medium pt-2 hidden">Ningún archivo seleccionado</p>
-                    </div>
-                </div>
-            </div>
-            <button type="button" onclick="procesarDocumento()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3.5 px-4 rounded-xl shadow-lg transition-all text-sm">Generar Modelo de Presentación</button>
-        </div>
+  <div class="form-group" id="manualSlideContainer" style="display: none;">
+    <label>Número manual de diapositivas:</label>
+    <input type="number" id="slideCount" value="5" min="1" max="20">
+  </div>
 
-        <div id="status" class="hidden my-8 p-6 bg-indigo-950/40 border border-indigo-900/50 rounded-2xl text-center">
-            <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-400 mb-3"></div>
-            <p id="status-text" class="text-sm text-indigo-200 font-medium"></p>
-        </div>
+  <button onclick="generar()">Generar Presentación</button>
+</div>
 
-        <div id="step-preview" class="hidden bg-slate-900/60 border border-slate-800/80 backdrop-blur-sm p-8 rounded-2xl shadow-2xl mt-8">
-            <div class="border-b border-slate-800 pb-4 mb-6"><h2 class="text-xl font-bold text-white">Borrador de la Presentación</h2></div>
-            <div id="slides-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8"></div>
-            <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-6 mb-6">
-                <textarea id="modInstructions" rows="2" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-200 text-sm mb-3" placeholder="Ej: Haz los textos más cortos..."></textarea>
-                <button type="button" onclick="modificarModelo()" class="w-full bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700/60 py-2 rounded-lg text-xs">✨ Aplicar Cambios al Borrador</button>
-            </div>
-            <button type="button" onclick="finalizarPresentacion()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 text-white font-bold py-4 rounded-xl text-sm">Confirmar y Compilar en Google Slides</button>
-        </div>
-    </main>
+<script>
+  function toggleSlideInput() {
+    const isAuto = document.getElementById('autoSlides').checked;
+    document.getElementById('manualSlideContainer').style.display = isAuto ? 'none' : 'block';
+  }
 
-    <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbynInTrf1A_YLOlxWQfrIWk3m0wqcgX_QHn2HLZQ73bAyyIv_XFH6YS4k-rC6fLBiI/exec"; 
-        let currentSlidesData = []; 
-        let globalExtractedText = ""; 
-        let currentFileName = "";
+  // Lógica para enviar los 3 archivos en Base64 a tu Apps Script (Debes conectar tu URL de despliegue aquí)
+  // Esta es la estructura conceptual que debes enviar en tu petición POST a Google Apps Script.
+</script>
 
-        function updateFileName(input) {
-            const label = document.getElementById("file-chosen");
-            if(input.files.length > 0) { label.innerText = `📄 Archivo: ${input.files[0].name}`; label.classList.remove("hidden"); currentFileName = input.files[0].name; }
-        }
-
-        function showLoading(text) { document.getElementById("status-text").innerText = text; document.getElementById("status").classList.remove("hidden"); }
-        function hideLoading() { document.getElementById("status").classList.add("hidden"); }
-
-        async function procesarDocumento() {
-            const file = document.getElementById("fileInput").files[0];
-            const instructions = document.getElementById("instructions").value;
-            const slideCount = document.getElementById("slideCount").value;
-            if (!file) return alert("Sube un documento.");
-
-            showLoading("Estructurando modelo con Gemini IA...");
-            document.getElementById("step-setup").classList.add("opacity-50", "pointer-events-none");
-
-            const reader = new FileReader();
-            reader.onload = async function(event) {
-                const payload = {
-                    action: "CREATE_DRAFT", fileName: file.name, mimeType: file.type,
-                    fileData: event.target.result.split(',')[1], instructions: instructions, slideCount: slideCount
-                };
-                try {
-                    const response = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
-                    const result = await response.json();
-                    if(result.success) {
-                        currentSlidesData = result.slides; globalExtractedText = result.extractedText; 
-                        renderSlides(); document.getElementById("step-preview").classList.remove("hidden");
-                    } else alert("Error: " + result.error);
-                } catch (error) { alert("Error: " + error); }
-                hideLoading(); document.getElementById("step-setup").classList.remove("opacity-50", "pointer-events-none");
-            };
-            reader.readAsDataURL(file);
-        }
-
-        async function modificarModelo() {
-            const mod = document.getElementById("modInstructions").value;
-            if(!mod.trim()) return;
-            showLoading("Rediseñando borrador...");
-            const payload = { action: "MODIFY_DRAFT", currentSlides: currentSlidesData, modInstructions: mod, extractedText: globalExtractedText };
-            try {
-                const response = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
-                const result = await response.json();
-                if(result.success) { currentSlidesData = result.slides; renderSlides(); document.getElementById("modInstructions").value = ""; }
-                else alert("Error: " + result.error);
-            } catch (error) { alert("Error: " + error); }
-            hideLoading();
-        }
-
-        async function finalizarPresentacion() {
-            const templateId = document.getElementById("templateUrl").value;
-            const generateImages = document.getElementById("generateImages").checked;
-            
-            showLoading("Compilando Google Slides... (Si activaste imágenes, esto tomará unos segundos adicionales)");
-            const payload = { action: "FINALIZE", slides: currentSlidesData, templateId: templateId, generateImages: generateImages, fileName: currentFileName };
-            
-            try {
-                const response = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
-                const result = await response.json();
-                if(result.success) {
-                    document.getElementById("status").innerHTML = `<div class="p-4 bg-emerald-950/40 rounded-xl text-center"><strong class="text-emerald-400 block mb-2">¡Éxito!</strong><a href="${result.url}" target="_blank" class="bg-emerald-600 text-white px-4 py-2 rounded">Abrir Presentación</a></div>`;
-                } else alert("Error: " + result.error);
-            } catch (error) { alert("Error: " + error); hideLoading(); }
-        }
-
-        function renderSlides() {
-            const container = document.getElementById("slides-container");
-            container.innerHTML = "";
-            currentSlidesData.forEach((slide, index) => {
-                container.innerHTML += `<div class="bg-slate-950/60 border border-slate-800 p-5 rounded-xl">
-                    <span class="text-[10px] text-indigo-400 uppercase">Slide ${index + 1}</span>
-                    <h3 class="text-sm font-semibold text-white my-2">${slide.titulo}</h3>
-                    <p class="text-xs text-slate-400 whitespace-pre-line">${slide.contenido}</p>
-                    <p class="text-[9px] text-slate-600 mt-3 border-t border-slate-800 pt-2">🖼️ Sugerencia visual: ${slide.imagen_prompt || 'Sin imagen'}</p>
-                </div>`;
-            });
-        }
-    </script>
 </body>
 </html>
